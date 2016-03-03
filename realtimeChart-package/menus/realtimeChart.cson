@@ -1,0 +1,10 @@
+'menu': [
+  'label': 'Packages'
+  'submenu': [
+    'label': 'realtimeChart-package'
+    'submenu': [
+      'label': 'Show'
+      'command': 'realtimeChart-package:view'
+    ]
+  ]
+]
