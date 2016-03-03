@@ -14,6 +14,9 @@ class ClientTestPackageView
   # Returns an object that can be retrieved when package is activated
   serialize: ->
 
+  attached: ->
+    client = require('client.js');
+    
   # Tear down any state and detach
   destroy: ->
     @element.remove()

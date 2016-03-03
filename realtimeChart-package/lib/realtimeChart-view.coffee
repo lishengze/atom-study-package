@@ -8,7 +8,7 @@ $=require('atom-space-pen-views').$
 # detached
 # initialize
 # serialize
- 
+
 module.exports =
 class DemoView extends ScrollView
   @content: ->
@@ -56,10 +56,10 @@ class DemoView extends ScrollView
          @div id: 'realtimeChart20'
 
   attached: ->
-    {setupDemo}=require './setupRealtimeChartDemo.js'
+    {setupDemo} = require './setupRealtimeChartDemo.js'
     setupDemo()
 
-    {beginReceiveData}=require './setupRealtimeChartDemo.js'
+    {beginReceiveData} = require './setupRealtimeChartDemo.js'
     #beginReceiveData()
 
   detached: ->
