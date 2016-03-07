@@ -1,0 +1,13 @@
+'menu': [
+  {
+    'label': '组件'
+    'submenu': [
+      'label': '设置'
+      'submenu': [
+        { 'label': '打开', 'command': 'settings-view:open' }
+        { 'label': '快捷键', 'command': 'settings-view:show-keybindings' }
+        { 'label': '主题', 'command': 'settings-view:change-themes' }
+      ]
+    ]
+  }
+]
