@@ -32,6 +32,7 @@
           return _this.emit(data.event, data);
         };
       })(this));
+      
     };
 
     return ClientAPI;
