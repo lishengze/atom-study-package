@@ -1,0 +1,28 @@
+{
+  "name": "monitor-sidebar",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "description": "侧边栏",
+  "keywords": [
+  ],
+  "repository": "",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom-space-pen-views": "^2.1.1",
+    "underscore-plus": "^1.0.6"
+  },
+  "devDependencies": {
+    "coffeelint": "^1.9.7"
+  },
+  "providedServices": {
+    "side-bar": {
+      "description": "侧边栏",
+      "versions": {
+        "1.0.0": "provideSidebar"
+      }
+    }
+  }
+}

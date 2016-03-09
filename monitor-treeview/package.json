@@ -1,0 +1,26 @@
+{
+  "name": "monitor-treeview",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "description": "监控treeview模块",
+  "keywords": [
+  ],
+  "repository": "",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom-space-pen-views": "^2.0.0",
+    "underscore-plus": "^1.0.0",
+    "socket.io-client": "",
+    "space-pen": "^5.1.2"
+  },
+  "consumedServices": {
+    "side-bar": {
+      "versions": {
+        "1.0.0": "consumeSidebar"
+      }
+    }
+  }
+}
