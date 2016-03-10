@@ -1,6 +1,4 @@
 TestClientView = require './test-client-view'
-ClientView     = require './client-view'
-
 {CompositeDisposable} = require 'atom'
 
 module.exports = TestClient =
@@ -27,7 +25,7 @@ module.exports = TestClient =
     testClientViewState: @testClientView.serialize()
 
   toggle: ->
-    #console.log 'TestClient was toggled!'
+    console.log 'TestClient was toggled!'
 
     if @modalPanel.isVisible()
       @modalPanel.hide()
