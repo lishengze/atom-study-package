@@ -9,8 +9,8 @@ path         = require 'path'
 # clientMain.childFilePath = path.join __dirname, './client-child-simple.js'
 # clientMain.childProcess  = fork clientMain.childFilePath, ['Hello client-child!']
 
-g_childFilePath = path.join __dirname, './client-child-simple.js'
-g_childProcess  = fork g_childFilePath, ['Hello client-child!']
+# g_childFilePath = path.join __dirname, './client-child-simple.js'
+# g_childProcess  = fork g_childFilePath
 
 
 console.log 'client-view!'
@@ -28,19 +28,19 @@ clientMain.childProcess.on 'message', (data)->
      clientMain.emitter.emit data.event, data.callbackData
 
 # TestAddNewUser();
-# TestProcess();
+TestProcess();
 
-# module.exports =
-# class ClientView extends ScrollView
-# 	@content: ->
-# 		@div =>
-# 			@ol =>
-# 				@li click:'TestAddNewUser', "TestAddNewUser"
-# 	@attached: ->
-# 				clientMain.emitter.on 'TestEmitter_Data', (data) ->
-# 					console.log('From client-view: ')
-# 					console.log(data);
-# 	@detached: ->
+module.exports =
+class ClientView extends ScrollView
+	@content: ->
+		@div =>
+			@ol =>
+				@li click:'TestAddNewUser', "TestAddNewUser"
+	@attached: ->
+				clientMain.emitter.on 'TestEmitter_Data', (data) ->
+					console.log('From client-view: ')
+					console.log(data);
+	@detached: ->
 
 # clientMain  = require './client-main.coffee'
 # reqData = {};

@@ -3,6 +3,7 @@
 var EventEmitter = require ('events').EventEmitter;
 var fork         = require ('child_process').fork;
 var path         = require ('path');
+
 console.log ('client-main.js!')
 
 // var reqData = {};
@@ -14,18 +15,14 @@ console.log ('client-main.js!')
 // }
 
 var ClientMain = function () {
-
-  //  this.emitter = new EventEmitter
-  //
-   this.childFilePath = path.join( __dirname, 'client-child-simple.js');
-
+   this.emitter = new EventEmitter
+   this.childFilePath = path.join( __dirname, 'client-child-complete.js');
    console.log ("childFilePath: " + this.childFilePath);
-
    this.childProcess = fork (this.childFilePath, ['Hello client-child!']);
+   console.log ('fork end!');
 
    // this.childProcess.send({event: 'function', ReqData: reqData});
    // this.childProcess.send({event: 'function', func: testFunc});
-
   //  this.childProcess.on ('message', function (data) {          // 接受子进程传递的数据
   //    console.log('client-main: from client-child \n');
   //    console.log(data);

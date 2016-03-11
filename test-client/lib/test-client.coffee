@@ -1,7 +1,9 @@
 TestClientView = require './test-client-view'
 ClientView     = require './client-view'
-
 {CompositeDisposable} = require 'atom'
+
+# path         = require 'path'
+# {fork}       = require 'child_process'
 
 module.exports = TestClient =
   testClientView: null
@@ -28,6 +30,10 @@ module.exports = TestClient =
 
   toggle: ->
     #console.log 'TestClient was toggled!'
+    # g_childFilePath = path.join __dirname, './client-child-simple.js'
+    # console.log 'test-client g_childFilePath: ' + g_childFilePath
+    # g_childProcess  = fork g_childFilePath, ['Hello World!']
+    # console.log 'test-client fork end!'
 
     if @modalPanel.isVisible()
       @modalPanel.hide()
