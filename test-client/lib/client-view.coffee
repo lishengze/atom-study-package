@@ -3,16 +3,8 @@
 {ScrollView} = require 'atom-space-pen-views'
 clientMain   = require './client-main.js'
 
-<<<<<<< HEAD
 path         = require 'path'
 {fork}       = require 'child_process'
-
-# clientMain.childFilePath = path.join __dirname, './client-child-simple.js'
-# clientMain.childProcess  = fork clientMain.childFilePath, ['Hello client-child!']
-
-g_childFilePath = path.join __dirname, './client-child-simple.js'
-g_childProcess  = fork g_childFilePath, ['Hello client-child!']
-
 
 console.log 'client-view!'
 
@@ -42,45 +34,4 @@ clientMain.childProcess.on 'message', (data)->
 # 					console.log('From client-view: ')
 # 					console.log(data);
 # 	@detached: ->
-=======
-TestAddNewUser = ->  clientMain.childProcess.send {event: "TestAddNewUser", reqField: {}}
 
-clientMain.childProcess.on 'message', (data)->
-     console.log 'client-view: from client-child'
-     console.log data
-     clientMain.emitter.emit data.event, data.callbackData  
-	 
-TestAddNewUser();
-
-module.exports =
-class ClientView extends ScrollView
-	@content: ->
-		@div =>
-			@ol =>
-				@li click:'TestAddNewUser', "TestAddNewUser"
-	@attached: ->
-				clientMain.emitter.on 'TestEmitter_Data', (data) ->
-					console.log('From client-view: ')
-					console.log(data);
-	@detached: ->
->>>>>>> d84d0b4b656b57c793dd4f4af70dae694baf3d5d
-
-# clientMain  = require './client-main.coffee'
-# reqData = {};
-# reqData.name = "tom";
-# reqData.age  = 24;
-
-# clientMain.emitter.on 'TestEmitterCallbackData', (data) ->
-# 	console.log('From client-view: ')
-# 	console.log(data);
-<<<<<<< HEAD
-
-=======
-										
->>>>>>> d84d0b4b656b57c793dd4f4af70dae694baf3d5d
-# TestEmitter = -> clientMain.emitter.emit 'TestEmitter' , reqData
-
-# TestProcess = -> clientMain.childProcess.send {event: 'TestEmitter', reqField: reqData}
-
-# TestEmitter();
-# TestProcess();

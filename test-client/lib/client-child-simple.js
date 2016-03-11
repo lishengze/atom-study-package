@@ -1,23 +1,31 @@
-console.log ('client-child-simple.js!\n\n')
+// .log ('client-child-simple.js!\n\n')
+var fs = require('fs');
+var path = require('path');
+var fileName = path.join (__dirname, './client-child-simple.txt');
+var fileData = "Hello Pid: " + process.pid + '\n';
 
-// console.log(process.argv);
-
+fileData += 'Env Arg: \n';
 process.argv.forEach(function(val, index, array) {
-  console.log(index + ': ' + val);
+  fileData += index + ': ' + val + '\n';
 });
 
-var TestProcessFunc = function () {
-	console.log('\nclient-child-simple: TestProcessFunc!\n');
+fileData += '\n';
+
+var TestProcessFunc = function() {
+  fileData += "\nDo TestProcessFunc\n";
+
+  fs.writeFile(fileName, fileData, function (err) {
+    if (err) throw err;
+  });
+
 }
 
 var funcCol = [];
-funcCol['TestProcess'] = TestEmitterFunc;
+funcCol['TestProcess'] = TestProcessFunc;
 
 process.on ('message', function(data) {
 
-	console.log("\nclient-child-simple: data from client-view");
-	console.log(data);
-	console.log('\n');
+	fileData += "client-child-simple: data from client-view \n";
 
 	var func = funcCol[data.event];
 	func();
@@ -29,3 +37,7 @@ process.on ('message', function(data) {
 	process.send(rspData);
 
 })
+
+fs.writeFile(fileName, fileData, function (err) {
+  if (err) throw err;
+});

@@ -12,12 +12,14 @@ var toolFunc         = require("./tool-function.js");
 var OutputMessage    = toolFunc.OutputMessage;
 
 var io               = require('socket.io-client');
+var path             = require('path');
 
-var isHttps = true;
+var isHttps  = true;
+var fileName = path.join (__dirname, './client-child-complete.txt');
+var fileData = "Hello Pid: " + process.pid + '\n';
 
-console.log ('client-child.js!\n\n')
 process.argv.forEach(function(val, index, array) {
-  console.log(index + ': ' + val);
+  fileData += index + ': ' + val + '\n';
 });
 
 if (true === isHttps) {
@@ -3659,10 +3661,20 @@ ReqFunc["TestAddNewUserID_1"] = TestAddNewUserID_1;
 
 process.on ('message', function(data) {
 
-	console.log("client-child: \n");
-	console.log(data);
-	console.log('\n');
+	// console.log("client-child: \n");
+	// console.log(data);
+	// console.log('\n');
 
+  fileData += "reqData.event: " + data.event + '\n';
 	var curReqFunc = ReqFunc[data.event];
 	curReqFunc(data.reqField);
+
+  fs.writeFile(fileName, fileData, function (err) {
+    if (err) throw err;
+  });
+
+});
+
+fs.writeFile(fileName, fileData, function (err) {
+  if (err) throw err;
 });
