@@ -9,6 +9,7 @@ path         = require 'path'
 console.log 'client-view!'
 
 TestAddNewUser = ->  clientMain.childProcess.send {event: "TestAddNewUser", reqField: {}}
+TestAddNewUserID_1 = ->  clientMain.childProcess.send {event: "TestAddNewUserID_1", reqField: {}}
 
 reqData = {};
 reqData.name = "tom";
@@ -21,17 +22,19 @@ clientMain.childProcess.on 'message', (data)->
      clientMain.emitter.emit data.event, data.callbackData
 
 # TestAddNewUser();
+
+# TestAddNewUserID_1();
+
 # TestProcess();
 
-# module.exports =
-# class ClientView extends ScrollView
-# 	@content: ->
-# 		@div =>
-# 			@ol =>
-# 				@li click:'TestAddNewUser', "TestAddNewUser"
-# 	@attached: ->
-# 				clientMain.emitter.on 'TestEmitter_Data', (data) ->
-# 					console.log('From client-view: ')
-# 					console.log(data);
-# 	@detached: ->
+module.exports =
+class ClientView extends ScrollView
+	@content: ->
+		@div => @h1 "Test Client"
+			@ol => @li click:'TestAddNewUser', "TestAddNewUser"
 
+	@attached: ->
+				# clientMain.emitter.on 'TestEmitter_Data', (data) ->
+				# 	console.log('From client-view: ')
+				# 	console.log(data);
+	@detached: ->

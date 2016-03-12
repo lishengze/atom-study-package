@@ -1,7 +1,6 @@
 TestClientView = require './test-client-view'
-ClientView     = require './client-view'
 {CompositeDisposable} = require 'atom'
-
+ClientView     = require './client-view';
 # path         = require 'path'
 # {fork}       = require 'child_process'
 
@@ -12,7 +11,10 @@ module.exports = TestClient =
 
   activate: (state) ->
     @testClientView = new TestClientView(state.testClientViewState)
-    @modalPanel = atom.workspace.addLeftPanel(item: @testClientView.getElement(), visible: false)
+    @modalPanel = atom.workspace.addModalPanel(item: @testClientView.getElement(), visible: false)
+
+    @clientView = new ClientView();
+    @leftPanel = atom.workspace.addLeftPanel(item: @clientView, visible:true);
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
@@ -22,6 +24,7 @@ module.exports = TestClient =
 
   deactivate: ->
     @modalPanel.destroy()
+    @clientView.destroy()
     @subscriptions.dispose()
     @testClientView.destroy()
 
@@ -35,7 +38,14 @@ module.exports = TestClient =
     # g_childProcess  = fork g_childFilePath, ['Hello World!']
     # console.log 'test-client fork end!'
 
-    if @modalPanel.isVisible()
-      @modalPanel.hide()
-    else
-      @modalPanel.show()
+    # if @modalPanel.isVisible()
+    #   @modalPanel.hide()
+    # else
+    #   @modalPanel.show()
+
+    @leftPanel.show()
+
+    # if @leftPanel.isVisible()
+    #   @leftPanel.hide()
+    # else
+    #   @leftPanel.show()

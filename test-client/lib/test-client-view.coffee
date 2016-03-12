@@ -7,8 +7,9 @@ class TestClientView
 
     # Create message element
     message = document.createElement('div')
-    message.textContent = "The TestClient package is Alive! It's ALIVE!"
+    message.textContent = "Come Man!"
     message.classList.add('message')
+    
     @element.appendChild(message)
 
   # Returns an object that can be retrieved when package is activated

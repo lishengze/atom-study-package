@@ -1,0 +1,3 @@
+Hello Pid: 12916
+0: C:\Program Files\nodejs\node.exe
+1: C:\Users\lishe\Documents\Github\atom-study-package\test-client\lib\client-child-complete-simple.js
