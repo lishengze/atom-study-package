@@ -88,6 +88,12 @@ rootSocket.on(EVENTS.NewUserReady, function(data){
 
   userSocket.on("Test Front", function(data){
         fileData += "\n+++++++++  Communication FrontConnected! ++++++++\n";
+        
+        var data = {};
+        data.event = 'TestFront';
+        data.callbackData = 'Data from client-child-complete-simple.js'
+        process.send(data);
+
         fs.writeFile(fileName, fileData, function (err) {
           if (err) throw err;
         });

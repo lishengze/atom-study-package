@@ -18,8 +18,8 @@ console.log ('client-main.js!')
 var ClientMain = function () {
    this.emitter = new EventEmitter
 //   this.childFilePath = path.join( __dirname, 'client-child-simple.js');
-//   this.childFilePath = path.join( __dirname, 'client-child-complete.js');
-   this.childFilePath = path.join( __dirname, 'client-child-complete-simple.js');
+   this.childFilePath = path.join( __dirname, 'client-child-complete.js');
+//   this.childFilePath = path.join( __dirname, 'client-child-complete-simple.js');
    console.log ("childFilePath: " + this.childFilePath);
    this.childProcess = fork (this.childFilePath, ['Hello client-child!']);
    console.log ('fork end!');

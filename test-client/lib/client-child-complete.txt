@@ -1,0 +1,22 @@
+Hello Pid: 8020
+
+Environment Params: 
+0: C:\Users\lishe\AppData\Local\atom\app-1.5.4\atom.exe
+1: C:\Users\lishe\Documents\Github\atom-study-package\test-client\lib\client-child-complete.js
+2: Hello client-child!
+reqData.event: TestAddNewUser
+Client: new user admin ready!
+Client: admin  connect completed!
+Client: admin  connect completed!
+
++++++++++  Communication FrontConnected! ++++++++
+
+
++++++++++  Communication FrontConnected! ++++++++
+
+
++++++++++  Communication FrontConnected! ++++++++
+
+
++++++++++  Communication FrontConnected! ++++++++
+

@@ -14,7 +14,7 @@ module.exports = TestClient =
     @modalPanel = atom.workspace.addModalPanel(item: @testClientView.getElement(), visible: false)
 
     @clientView = new ClientView();
-    @leftPanel = atom.workspace.addLeftPanel(item: @clientView, visible:true);
+    @leftPanel = atom.workspace.addLeftPanel(item: @clientView, visible:false);
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
@@ -43,9 +43,7 @@ module.exports = TestClient =
     # else
     #   @modalPanel.show()
 
-    @leftPanel.show()
-
-    # if @leftPanel.isVisible()
-    #   @leftPanel.hide()
-    # else
-    #   @leftPanel.show()
+    if @leftPanel.isVisible()
+      @leftPanel.hide()
+    else
+      @leftPanel.show()

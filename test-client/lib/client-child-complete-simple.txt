@@ -1,4 +1,4 @@
-Hello Pid: 11696
+Hello Pid: 6824
 
 Environment Params: 
 0: C:\Users\lishe\AppData\Local\atom\app-1.5.4\atom.exe

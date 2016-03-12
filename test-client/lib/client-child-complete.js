@@ -9,19 +9,18 @@ var EVENTS           = new events.EVENTS();
 var SysUserApiStruct = require("./SysUserApiStruct.js");
 
 var toolFunc         = require("./tool-function.js");
-var OutputMessage    = toolFunc.OutputMessage;
 
 var io               = require('socket.io-client');
 var path             = require('path');
 
-var isHttps  = true;
 var fileName = path.join (__dirname, './client-child-complete.txt');
 var fileData = "Hello Pid: " + process.pid + '\n';
-
+fileData += "\nEnvironment Params: \n";
 process.argv.forEach(function(val, index, array) {
   fileData += index + ': ' + val + '\n';
 });
 
+var isHttps  = false;
 if (true === isHttps) {
 	var localUrl   = 'https://localhost'
 	var serverUrl  = 'https://172.1.128.169'
@@ -41,11 +40,9 @@ var userServer;
 var userInfo;
 
 rootSocket.on('connect_error', function(errorObj){
-
 });
 
 rootSocket.on('disconnect', function(){
-
 });
 
 var addNewUser = function (userinfo) {
@@ -59,7 +56,6 @@ var TestAddNewUser = function () {
     userinfo.UserID    = "admin";
     userinfo.Password  = "admin";
     userinfo.VersionID = "2.0.0.0";
-
     addNewUser(userinfo);
 }
 
@@ -69,37 +65,35 @@ var TestAddNewUserID_1 = function () {
     userinfo.UserID    = "NewUserID_1";
     userinfo.Password  = "1234567";
     userinfo.VersionID = "2.0.0.0";
-
     addNewUser(userinfo);
 }
 
 rootSocket.on("user reconnected", function(UserID) {
-   OutputMessage("Client: " + UserID + " has already logged!");
+   fileData += "Client: " + UserID + " has already logged!\n";
 });
-
 
 rootSocket.on(EVENTS.NewUserReady, function(data){
 
-    OutputMessage("Client: new user " + userInfo.UserID + " ready!");
-
-	userSocket = io.connect(curUrl + '/' + userInfo.UserID);
+    fileData +=  "Client: new user " + userInfo.UserID + " ready!\n";
+  	userSocket = io.connect(curUrl + '/' + userInfo.UserID);
 
     userSocket.on('connect_error', function(errorObj){
-
     });
 
     userSocket.on('disconnect', function(){
-
     });
 
     userSocket.on(EVENTS.NewUserConnectComplete, function(data){
-       OutputMessage("Client: " + userInfo.UserID + "  connect completed!");
+       fileData +=  "Client: " + userInfo.UserID + "  connect completed!\n";
        userSocket.emit(EVENTS.RegisterFront, {});
-	});
+	  });
 
     userSocket.on("Test Front", function(data){
         var outputStr = "\n+++++++++  Communication FrontConnected! ++++++++\n";
-    	OutputMessage(outputStr);
+    	  fileData += outputStr + "\n";
+        fs.writeFile(fileName, fileData, function (err) {
+          if (err) throw err;
+        });
     });
 
 	userSocket.on(EVENTS.FrontConnected, function(callbackData){
@@ -3661,17 +3655,9 @@ ReqFunc["TestAddNewUserID_1"] = TestAddNewUserID_1;
 
 process.on ('message', function(data) {
 
-	// console.log("client-child: \n");
-	// console.log(data);
-	// console.log('\n');
-
   fileData += "reqData.event: " + data.event + '\n';
 	var curReqFunc = ReqFunc[data.event];
 	curReqFunc(data.reqField);
-
-  fs.writeFile(fileName, fileData, function (err) {
-    if (err) throw err;
-  });
 
 });
 
