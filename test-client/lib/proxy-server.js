@@ -67,6 +67,7 @@ io.on('connection', function(rootSocket) {
             rootSocket.emit("user reconnected", userInfo.UserID);
             return;
         }
+				OutputMessage("Proxy-Server: new user " + userInfo.UserID + " come!");
 
 				userConnection[userInfo.UserID] = {};
         userConnection[userInfo.UserID].userInfo = userInfo;
@@ -78,18 +79,24 @@ io.on('connection', function(rootSocket) {
         userConnection[userInfo.UserID].socket.on ('connection', function (curSocket) {
             // 登陆相关删除; 资源析构;
             curSocket.on('disconnect', function(data) {
-              var currUserID = getSubString(curSocket.id, '/','#');
+              // var currUserID = getSubString(curSocket.id, '/','#');
+							// var currUserID = curSocket.nsp.name.slice(1);
               userConnection[currUserID] = undefined;
               userSocket[curSocket.id] = {};
-		      		console.log(curSocket.id + ' disconnect!');
+		      		OutputMessage(curSocket.id + ' disconnect!');
 	        });
 
-            var currUserID = getSubString(curSocket.id, '/','#');
+						var currUserID = curSocket.nsp.name.slice(1);
+						// OutputMessage('curSocket: \n');
+						// OutputMessage(curSocket);
+						// OutputMessage('curSocket.nap.name' + curSocket.nsp.name);
+						// OutputMessage('currUserID: ' + currUserID);
             OutputMessage("Proxy-Server: new user " + currUserID + " connect completed!");
 
             curSocket.emit(EVENTS.NewUserConnectComplete, currUserID);
 
             curSocket.on(EVENTS.RegisterFront, function() {
+							OutputMessage('\n------  Proxy-Server: Connect Front!-------\n');
             	curSocket.emit("Test Front", 'succeed!');
 						});
 

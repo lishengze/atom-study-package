@@ -6,17 +6,9 @@ var path         = require ('path');
 
 console.log ('client-main.js!')
 
-// var reqData = {};
-// reqData.name = "tom";
-// reqData.age  = 24;
-//
-// var testFunc = function () {
-//   console.log("Hello testFunc");
-// }
-
 
 var ClientMain = function () {
-   this.emitter = new EventEmitter
+   this.emitter = new EventEmitter;
 //   this.childFilePath = path.join( __dirname, 'client-child-simple.js');
    this.childFilePath = path.join( __dirname, 'client-child-complete.js');
 //   this.childFilePath = path.join( __dirname, 'client-child-complete-simple.js');

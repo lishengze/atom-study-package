@@ -35,9 +35,9 @@ class ClientView extends ScrollView
     @div =>
       @h1 "Client View is alive!"
       @button click: 'TestAddNewUser',  "TestAddNewUser"
-      # @button click: 'TestAddNewUserID_1', "TestAddNewUserID_1"
+      @button click: 'TestAddNewUserID_1', "TestAddNewUserID_1"
 
-  clientMain = require './client-main.js'
+  clientMain = require './client-main.coffee'
   console.log 'client-view!'
 
   TestAddNewUser: ->
@@ -47,6 +47,10 @@ class ClientView extends ScrollView
   TestAddNewUserID_1: ->
     console.log 'TestAddNewUserID_1!'
     clientMain.childProcess.send {event: "TestAddNewUserID_1", reqField: {}}
+
+  # clientMain.childProcess.on 'message', (data)->
+  #      console.log 'client-view: from client-child'
+  #      console.log data
 
   @attached: ->
 

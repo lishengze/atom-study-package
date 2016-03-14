@@ -8,8 +8,6 @@ var EVENTS           = new events.EVENTS();
 
 var SysUserApiStruct = require("./SysUserApiStruct.js");
 
-var toolFunc         = require("./tool-function.js");
-
 var io               = require('socket.io-client');
 var path             = require('path');
 
@@ -39,10 +37,21 @@ var userSocket;
 var userServer;
 var userInfo;
 
-rootSocket.on('connect_error', function(errorObj){
+rootSocket.on('connect', function(errorObj){
+  console.log ("connect!");
 });
 
+rootSocket.on('connect_error', function(errorObj){
+  console.log ("connect_error");
+});
+
+rootSocket.on('connect_timeout', function(errorObj){
+  console.log ("connect_timeout");
+});
+
+
 rootSocket.on('disconnect', function(){
+  console.log('disconnect!');
 });
 
 var addNewUser = function (userinfo) {
