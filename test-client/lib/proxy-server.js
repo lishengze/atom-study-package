@@ -55,7 +55,7 @@ io.on('connection', function(rootSocket) {
     var spawna = require('child_process').spawn('mkdir', ['usr']);
     OutputMessage("Proxy-Server: root connect complete!");
 
-    showCurProcessThreads();
+    // showCurProcessThreads();
 
     rootSocket.on('disconnect', function(data) {
 			console.log('rootSocket disconnect!');
@@ -82,8 +82,8 @@ io.on('connection', function(rootSocket) {
               // var currUserID = getSubString(curSocket.id, '/','#');
 							// var currUserID = curSocket.nsp.name.slice(1);
               userConnection[currUserID] = undefined;
-              userSocket[curSocket.id] = {};
-		      		OutputMessage(curSocket.id + ' disconnect!');
+              userSocket[currUserID] = {};
+		      		OutputMessage('user ' + currUserID + ' disconnect!');
 	        });
 
 						var currUserID = curSocket.nsp.name.slice(1);

@@ -1,5 +1,0 @@
-Hello Pid: 13828
-Env Arg: 
-0: C:\Users\li.shengze\AppData\Local\atom\app-1.5.4\atom.exe
-1: C:\Users\li.shengze\github\atom-package\test-client\lib\client-child-simple.js
-

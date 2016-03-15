@@ -16,12 +16,25 @@ var ClientMain = function () {
    this.childProcess = fork (this.childFilePath, ['Hello client-child!']);
    console.log ('fork end!');
 
-   this.childProcess.on ('message', (function(_this) {
+   this.callbackFunc = (function(_this) {
      return function(data) {
-       console.log (data);
        return _this.emitter.emit(data.event, data.callbackData);
       }
-   })(this));
+   })(this);
+   //
+  //  this.childProcess.on ('message', this.callbackFunc);
+
+  //  this.childProcess.on ('message', (function(_this) {
+  //    return function(data) {
+  //      return _this.emitter.emit(data.event, data.callbackData);
+  //     }
+  //  })(this));
 }
+
+// ClientMain.childProcess.on('message', function(_this) {
+//    return function(data) {
+//      return _this.emitter.emit(data.event, data.callbackData);
+//     }
+//  })(this));
 
 module.exports = new ClientMain();

@@ -1,5 +1,0 @@
-Hello Pid: 27332
-
-Environment Params: 
-0: node.exe
-1: C:\Users\li.shengze\github\atom-package\test-client\lib\client-child-complete.js

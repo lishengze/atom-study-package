@@ -7,16 +7,19 @@ path           = require 'path'
 console.log 'client-main.coffee!'
 
 #class ClientMain
-ClientMain = ->
- # constructor: ->
- #
- init: ->
+class ClientMain
+ # # constructor: ->
+ # #
+ @life = 'hard'
+ init: =>
    @emitter = new EventEmitter
-   childFilePath = path.join  __dirname, 'client-child-simple.js'
+   childFilePath = path.join  __dirname, 'client-child-complete-b.js'
    console.log "childFilePath: " + childFilePath
    @childProcess = fork childFilePath
-   @childProcess.on 'message', (data)->
+   @childProcess.on 'message', (data) =>
       console.log 'client-view: from client-child'
       console.log data
+
+    console.log ClientMain
 
 module.exports = new ClientMain
