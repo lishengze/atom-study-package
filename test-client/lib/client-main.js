@@ -3,25 +3,53 @@
 var EventEmitter = require ('events').EventEmitter;
 var fork         = require ('child_process').fork;
 var path         = require ('path');
+var childprocess = [];
 
 console.log ('client-main.js!')
-
-
 var ClientMain = function () {
    this.emitter = new EventEmitter;
 //   this.childFilePath = path.join( __dirname, 'client-child-simple.js');
-   this.childFilePath = path.join( __dirname, 'client-child-complete-b.js');
+   this.childFilePath = path.join( __dirname, 'client-child-complete.js');
 //   this.childFilePath = path.join( __dirname, 'client-child-complete-simple.js');
    console.log ("childFilePath: " + this.childFilePath);
    this.childProcess = fork (this.childFilePath, ['Hello client-child!']);
+   childprocess[this.childProcess.pid] = this.childProcess;
    console.log ('fork end!');
+
+   this.RestartFunc = (function(_this){
+     return function() {
+       _this.childProcess = fork (_this.childFilePath, ['Hello client-child!']);
+       delete childprocess[_this.childProcess.pid];
+       childprocess[_this.childProcess.pid] = _this.childProcess;
+     }
+   }(this));
 
    this.childProcess.on ('message', (function(_this) {
      return function(data) {
        console.log (data);
-       return _this.emitter.emit(data.event, data.callbackData);
+       _this.emitter.emit(data.event, data.callbackData);
+      }
+   })(this));
+
+   this.childProcess.on('exit',  (function(_this) {
+     return function() {
+       _this.emitter.emit('childprocess exit', {});
       }
    })(this));
 }
+
+var ExitFunc = function() {
+  for (var pid in childprocess) {
+    childprocess[pid].kill();
+  }
+}
+
+process.on('uncaughtException', function(){
+  ExitFunc();
+})
+
+process.on('exit', function(){
+  ExitFunc();
+});
 
 module.exports = new ClientMain();

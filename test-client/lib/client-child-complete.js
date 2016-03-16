@@ -18,7 +18,16 @@ process.argv.forEach(function(val, index, array) {
   fileData += index + ': ' + val + '\n';
 });
 
-var isHttps  = false;
+process.on('uncaughtException', function(){
+  // 1. 发送消息，通知用户，让用户来选择重启;
+  // 2.记录错误日志;
+  var data = {};
+  data.event = 'childprocess uncaughtException';
+  data.callbackData = {};
+  process.send(data);
+})
+
+var isHttps = true;
 if (true === isHttps) {
 	var localUrl   = 'https://localhost'
 	var serverUrl  = 'https://172.1.128.169'
@@ -27,9 +36,9 @@ if (true === isHttps) {
 	var rootSocket = io.connect(curUrl,{secure:true});
 } else {
 	var localUrl   = 'http://localhost';
-    var serverUrl  = 'http://172.1.128.169';
-    var ubuntuUrl  = 'http://192.168.136.131';
-    var curUrl     = localUrl;
+  var serverUrl  = 'http://172.1.128.169';
+  var ubuntuUrl  = 'http://192.168.136.131';
+  var curUrl     = localUrl;
 	var rootSocket = io.connect(curUrl);
 }
 

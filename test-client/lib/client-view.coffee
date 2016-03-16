@@ -12,7 +12,7 @@ class ClientView extends ScrollView
       @button click: 'TestAddNewUser',  "TestAddNewUser"
       @button click: 'TestAddNewUserID_1', "TestAddNewUserID_1"
 
-  clientMain = require './client-main-b.js'
+  clientMain = require './client-main.js'
   console.log 'client-view!'
 
   TestAddNewUser: ->
@@ -22,6 +22,7 @@ class ClientView extends ScrollView
   TestAddNewUserID_1: ->
     console.log 'TestAddNewUserID_1!'
     clientMain.childProcess.send {event: "TestAddNewUserID_1", reqField: {}}
+  
 
   @attached: ->
 
