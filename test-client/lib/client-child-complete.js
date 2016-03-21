@@ -15,19 +15,6 @@ var userSocket;
 var userServer;
 var userInfo;
 
-// if (true === isHttps) {
-//   var localUrl   = 'https://localhost'
-//   var serverUrl  = 'https://172.1.128.169'
-//   var port       = 8000;
-//   var curUrl     = serverUrl + ':' + port.toString();
-//   var rootSocket = io.connect(curUrl,{secure:true});
-// } else {
-//   var localUrl   = 'http://localhost';
-//   var serverUrl  = 'http://172.1.128.169';
-//   var curUrl     = localUrl;
-//   var rootSocket = io.connect(curUrl);
-// }
-
 var localUrl;
 var serverUrl;
 var port;
@@ -152,7 +139,7 @@ rootSocket.on(EVENTS.NewUserReady, function(data){
 
 	userSocket.on(EVENTS.FrontConnected, function(callbackData){
         var reqField = userInfo;
-	    userSocket.emit(EVENTS.ReqQrySysUserLoginTopic, reqField);
+	      userSocket.emit(EVENTS.ReqQrySysUserLoginTopic, reqField);
 	});
 
     userSocket.on(EVENTS.FrontDisConnected, function(callbackData){

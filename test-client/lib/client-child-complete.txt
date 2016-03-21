@@ -1,4 +1,4 @@
-Hello Pid: 8212
+Hello Pid: 8244
 
 Environment Params: 
 0: C:\Users\li.shengze\AppData\Local\atom\app-1.6.0\atom.exe
@@ -7,54 +7,12 @@ Environment Params:
 reqData.event: TestAddNewUser
 Client: new user admin ready!
 Client: admin  connect completed!
-Client: admin  connect completed!
-Client: admin  connect completed!
-Client: admin  connect completed!
 
 +++++++++  Communication FrontConnected! ++++++++
 
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
-
-+++++++++  Communication FrontConnected! ++++++++
-
+reqData.event: TestAddNewUserID_1
+Client: new user NewUserID_1 ready!
+Client: NewUserID_1  connect completed!
 
 +++++++++  Communication FrontConnected! ++++++++
 
