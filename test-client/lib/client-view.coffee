@@ -22,7 +22,14 @@ class ClientView extends ScrollView
   TestAddNewUserID_1: ->
     console.log 'TestAddNewUserID_1!'
     clientMain.childProcess.send {event: "TestAddNewUserID_1", reqField: {}}
-  
+
+  clientMain.emitter.on "RtnSyslogEventTopic CallbackData", (data)->
+      console.log 'RtnSyslogEventTopic CallbackData'
+      console.log data
+
+  clientMain.emitter.on "Test Front!", (data)->
+      console.log 'Test Front!'
+      console.log data
 
   @attached: ->
 

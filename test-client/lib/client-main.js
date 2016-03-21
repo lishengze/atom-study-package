@@ -26,8 +26,12 @@ var ClientMain = function () {
 
    this.childProcess.on ('message', (function(_this) {
      return function(data) {
-       console.log (data);
-       _this.emitter.emit(data.event, data.callbackData);
+       if (data.message === "Test Front!") {
+         console.log (data);
+         _this.emitter.emit(data.message, data.callbackData);
+       }
+      // console.log (data.event);
+      //  _this.emitter.emit(data.event, data.callbackData);
       }
    })(this));
 

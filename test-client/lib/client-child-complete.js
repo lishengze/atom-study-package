@@ -1,16 +1,55 @@
 // Created by li.shengze on 2016/3/08.
+var fs                  = require('fs');
+var spi                 = require("./communication.js");
+var events              = require("./events.js");
+var EVENTS              = new events.EVENTS();
+var SysUserApiStruct    = require("./SysUserApiStruct.js");
+var io                  = require('socket.io-client');
+var path                = require('path');
+var myDate              = new Date();
+var isHttps             = true;
+var connectTimeLimit    = 10000;
+var rootSocketStartTime = myDate.getTime();
 
-var fs               = require('fs');
-var spi              = require("./communication.js");
+var userSocket;
+var userServer;
+var userInfo;
 
-var events           = require("./events.js");
-var EVENTS           = new events.EVENTS();
+// if (true === isHttps) {
+//   var localUrl   = 'https://localhost'
+//   var serverUrl  = 'https://172.1.128.169'
+//   var port       = 8000;
+//   var curUrl     = serverUrl + ':' + port.toString();
+//   var rootSocket = io.connect(curUrl,{secure:true});
+// } else {
+//   var localUrl   = 'http://localhost';
+//   var serverUrl  = 'http://172.1.128.169';
+//   var curUrl     = localUrl;
+//   var rootSocket = io.connect(curUrl);
+// }
 
-var SysUserApiStruct = require("./SysUserApiStruct.js");
+var localUrl;
+var serverUrl;
+var port;
+var curUrl;
+var rootSocket;
+var connectServer = function () {
+  if (true === isHttps) {
+  	localUrl   = 'https://localhost'
+  	serverUrl  = 'https://172.1.128.169'
+  	port       = 8000;
+  	curUrl     = serverUrl + ':' + port.toString();
+  	rootSocket = io.connect(curUrl,{secure:true});
+  } else {
+  	localUrl   = 'http://localhost';
+    serverUrl  = 'http://172.1.128.169';
+    curUrl     = localUrl;
+  	rootSocket = io.connect(curUrl);
+  }
+}
+connectServer();
 
-var io               = require('socket.io-client');
-var path             = require('path');
-
+// client-child-complete.txt 用来测试代码;
 var fileName = path.join (__dirname, './client-child-complete.txt');
 var fileData = "Hello Pid: " + process.pid + '\n';
 fileData += "\nEnvironment Params: \n";
@@ -25,26 +64,7 @@ process.on('uncaughtException', function(){
   data.event = 'childprocess uncaughtException';
   data.callbackData = {};
   process.send(data);
-})
-
-var isHttps = true;
-if (true === isHttps) {
-	var localUrl   = 'https://localhost'
-	var serverUrl  = 'https://172.1.128.169'
-	var port       = 8000;
-	var curUrl     = serverUrl + ':' + port.toString();
-	var rootSocket = io.connect(curUrl,{secure:true});
-} else {
-	var localUrl   = 'http://localhost';
-  var serverUrl  = 'http://172.1.128.169';
-  var ubuntuUrl  = 'http://192.168.136.131';
-  var curUrl     = localUrl;
-	var rootSocket = io.connect(curUrl);
-}
-
-var userSocket;
-var userServer;
-var userInfo;
+});
 
 rootSocket.on('connect', function(errorObj){
   // console.log ("connect!");
@@ -52,6 +72,9 @@ rootSocket.on('connect', function(errorObj){
 
 rootSocket.on('connect_error', function(errorObj){
   // console.log ("connect_error");
+  if (rootSocketStartTime - myData.getTime() > connectTimeLimit) {
+    process.send({event:'rootSocket connect_error', callbackData:'rootSocket connect_error'});
+  }
 });
 
 rootSocket.on('connect_timeout', function(errorObj){
@@ -61,6 +84,7 @@ rootSocket.on('connect_timeout', function(errorObj){
 
 rootSocket.on('disconnect', function(){
   // console.log('disconnect!');
+  process.send({event:'rootSocket disconnect!', callbackData:'rootSocket disconnect!'});
 });
 
 var addNewUser = function (userinfo) {
@@ -95,10 +119,16 @@ rootSocket.on(EVENTS.NewUserReady, function(data){
     fileData +=  "Client: new user " + userInfo.UserID + " ready!\n";
   	userSocket = io.connect(curUrl + '/' + userInfo.UserID);
 
+    userSocket.on('connect', function() {
+
+    });
+
     userSocket.on('connect_error', function(errorObj){
+
     });
 
     userSocket.on('disconnect', function(){
+
     });
 
     userSocket.on(EVENTS.NewUserConnectComplete, function(data){
@@ -3673,6 +3703,7 @@ ReqFunc[EVENTS.ReqQryNetRomotePingResultInfoTopic] = ReqQryNetRomotePingResultIn
 
 ReqFunc[EVENTS.ReqQryNetNonPartyLinkInfoTopic] = ReqQryNetNonPartyLinkInfoTopic;
 
+ReqFunc['connectServer'] = connectServer;
 
 ReqFunc["TestAddNewUser"] = TestAddNewUser;
 ReqFunc["TestAddNewUserID_1"] = TestAddNewUserID_1;
