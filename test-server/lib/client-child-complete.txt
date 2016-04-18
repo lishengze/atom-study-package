@@ -1,0 +1,12 @@
+Hello Pid: 1240
+
+Environment Params: 
+0: C:\Users\li.shengze\AppData\Local\atom\app-1.7.1\atom.exe
+1: D:\Document\github\atom-package\test-server\lib\client-child-complete.js
+2: Hello client-child!
+reqData.event: TestAddNewUser
+Client: new user admin ready!
+Client: admin  connect completed!
+
++++++++++  Communication FrontConnected! ++++++++
+

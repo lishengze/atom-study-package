@@ -1,0 +1,22 @@
+{
+  "name": "test-client",
+  "main": "./lib/test-client",
+  "version": "0.1.0",
+  "description": "A short description of your package",
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "test-client:toggle"
+  },
+  "repository": "https://github.com/atom/test-client",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom-space-pen-views": "^2.2.0",
+    "underscore-plus": "^1.0.6",
+    "space-pen": "^5.1.2",
+    "socket.io-client": "^1.4.5"
+  }
+}
