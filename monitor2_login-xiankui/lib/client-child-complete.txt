@@ -1,0 +1,6 @@
+Hello Pid: 8436
+
+Environment Params: 
+0: C:\Users\LI57C1~1.SHE\AppData\Local\Temp\monitor-build\monitor2\monitor2.exe
+1: C:\Users\li.shengze\.monitor\packages\monitor2-login-xiankui\lib\client-child-complete.js
+2: Hello client-child!
