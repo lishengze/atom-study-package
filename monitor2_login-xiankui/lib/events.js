@@ -4,7 +4,17 @@ var events = function () {
     this.ChildProcessExit = 'ChildProcessExit',
     this.ChildProcessUncaughtException = 'ChildProcessUncaughtException',
 
-    // socketio events
+    // root socket events
+    this.RootSocketConnect= "RootSocketConnect",
+    this.RootSocketConnectError= "RootSocketConnectError",
+    this.RootSocketDisconnect = "RootSocketDisconnect",
+    this.RootSocketReconnect = "RootSocketReconnect",
+    this.RootSocketReconnectAttempt = "RootSocketReconnectAttempt",
+    this.RootSocketReconnecting = "RootSocketReconnecting",
+    this.RootSocketReconnectError = "RootSocketReconnectError",
+    this.RootSocketReconnectFailed = "RootSocketReconnectFailed",
+
+    // user socket events
     this.StartConnectServer = "StartConnectServer",
     this.ConnectServerComplete = 'ConnectServerComplete',
     this.NewUserCome =   "NewUserCome",
@@ -23,7 +33,7 @@ var events = function () {
     this.SubscribeMarketDataTopic =  "SubscribeMarketDataTopic",
     this.SubscribePartAccount =  "SubscribePartAccount",
 
-    // server connect events-autoGenerate
+    // server connect events-AutoGenerate
     this.ReqQryTopMemInfoTopic = "ReqQryTopMemInfoTopic",
     this.ReqQryTopMemInfoTopicFailed = "ReqQryTopMemInfoTopicFailed",
     this.ReqQryTopProcessInfoTopic = "ReqQryTopProcessInfoTopic",

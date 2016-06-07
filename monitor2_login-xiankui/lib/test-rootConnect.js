@@ -27,39 +27,39 @@ var connectServer = function (reqData) {
 
 connectServer({});
 
-rootSocket.io.on('connect', function(errorObj){
-  console.log ("rootSocket.io connect!");
-});
-
-rootSocket.io.on('connect_error', function(errorObj){
-  console.log ("rootSocket.io connect_error");
-});
-
-rootSocket.io.on('connect_timeout', function(errorObj){
-  console.log ("rootSocket.io connect_timeout");
-});
-
-rootSocket.io.on('reconnect', function(Number){
-  console.log('rootSocket.io reconnect, Number : ' + Number);
-});
-
-rootSocket.io.on('reconnect_attempt', function(){
-  console.log('rootSocket.io reconnect_attempt!');
-});
-
-rootSocket.io.on('reconnecting', function(Number){
-  console.log('rootSocket.io reconnecting, Number : ' + Number);
-});
-
-rootSocket.io.on('reconnect_error', function(Object){
-  console.log('Object: ');
-  console.log(Object);
-  console.log('rootSocket.io reconnect_error!');
-});
-
-rootSocket.io.on('reconnect_failed', function(){
-  console.log('rootSocket.io reconnect_failed!');
-});
+// rootSocket.io.on('connect', function(errorObj){
+//   console.log ("rootSocket.io connect!");
+// });
+//
+// rootSocket.io.on('connect_error', function(errorObj){
+//   console.log ("rootSocket.io connect_error");
+// });
+//
+// rootSocket.io.on('connect_timeout', function(errorObj){
+//   console.log ("rootSocket.io connect_timeout");
+// });
+//
+// rootSocket.io.on('reconnect', function(Number){
+//   console.log('rootSocket.io reconnect, Number : ' + Number);
+// });
+//
+// rootSocket.io.on('reconnect_attempt', function(){
+//   console.log('rootSocket.io reconnect_attempt!');
+// });
+//
+// rootSocket.io.on('reconnecting', function(Number){
+//   console.log('rootSocket.io reconnecting, Number : ' + Number);
+// });
+//
+// rootSocket.io.on('reconnect_error', function(Object){
+//   console.log('Object: ');
+//   console.log(Object);
+//   console.log('rootSocket.io reconnect_error!');
+// });
+//
+// rootSocket.io.on('reconnect_failed', function(){
+//   console.log('rootSocket.io reconnect_failed!');
+// });
 
 rootSocket.on('connect', function(errorObj){
   console.log ("rootSocket connect!");
