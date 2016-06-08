@@ -40,14 +40,16 @@ class LoginView extends View
                       @label '记住我', =>
                         @input type: 'checkbox', tabindex: '6'
                 @div class: 'form-group', =>
-                  @span class: 'col-lg-2', outlet:'connectinfo', '正在连接服务器......'
+                  @span  outlet:'connectinfo', '正在连接服务器......'
             @div class: 'modal-footer',=>
                   @button outlet:'loginSubmit',type: 'button', click:'loginFunc', tabindex: '7', class: 'btn btn-primary btn-lg', '登录'
                   @button type: 'button', tabindex: '8', 'data-dismiss':'modal', class: 'btn btn-primary btn-lg', '退出'
 
   initialize: ->
+    console.log 'initialize this: '
+    console.log this
     $('body').append(@login.parent())
-    $(@login[0]).modal('backdrop': 'static', keyboard: true, show: true) #打开客户端即显示登录界面
+    $(@login[0]).modal('backdrop': 'static', keyboard: false, show: true) #打开客户端即显示登录界面
     #@loginSubmit.click(@loginFunc)
     # @loginSubmit.click(=>
     #     console.log '@loginSubmit!'
@@ -74,7 +76,6 @@ class LoginView extends View
     # )
 
   loginFunc: ->
-        console.log '@loginSubmit!'
         userID   = @inputText.val()
         password = @inputPassword.val()
         userinfo           = new userApiStruct.CShfeFtdcReqQrySysUserLoginField()
@@ -97,22 +98,17 @@ class LoginView extends View
         userApi.childProcess.send {event: EVENTS.NewUserCome, reqField: userinfo }
 
   attached: ->
-      clientMain       = require './client-main.js'
-      window.userApi   = clientMain;
+      connectServer(this)
+      serverMsgFunc(this)
 
-      userApi.emitter.on EVENTS.RootSocketReconnecting, (Number) =>
-          console.log EVENTS.RootSocketReconnecting
-          console.log Number
-          if Number > reconnectLimits
-            # 确定链接失败.
-            if isFirstConnect
-                @connectinfo.text('连接服务器失败！')
-            else
+  connectServer = (_this)->
+      clientMain     = require './client-main.js'
+      window.userApi = clientMain;
 
+  serverMsgFunc = (_this)->
       userApi.emitter.on EVENTS.RootSocketConnect, (data)->
           console.log EVENTS.RootSocketConnect
           isFirstConnect = false
-
 
       userApi.emitter.on EVENTS.RootSocketConnectError, (data) ->
           console.log EVENTS.RootSocketConnectError
@@ -126,6 +122,15 @@ class LoginView extends View
       userApi.emitter.on EVENTS.RootSocketReconnectAttempt, (data) ->
           console.log EVENTS.RootSocketReconnectAttempt
 
+      userApi.emitter.on EVENTS.RootSocketReconnecting, (Number) ->
+          console.log EVENTS.RootSocketReconnecting
+          console.log Number
+          if Number > reconnectLimits
+            # 确定链接失败.
+            if isFirstConnect
+                _this.connectinfo.text('连接服务器失败, 正在重连......')
+            else
+
       userApi.emitter.on EVENTS.RootSocketReconnectError, (data) ->
           console.log EVENTS.RootSocketReconnectError
           console.log data
@@ -138,10 +143,6 @@ class LoginView extends View
           $(@login[0]).modal('hide') # 登录成功隐藏对话框
           console.log "login-view: RspQrySysUserLoginTopic CallbackData"
           console.log data
-
-  connectServer: ->
-
-  serverMsgFunc: ->
 
   show: ->
     $(@login[0]).modal 'backdrop': 'static', keyboard: false, show: true
