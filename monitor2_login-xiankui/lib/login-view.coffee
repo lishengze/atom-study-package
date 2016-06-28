@@ -7,13 +7,16 @@ reconnectLimits  = 1;
 isFirstConnect   = true;
 window.userApiStruct = SysUserApiStruct;
 window.EVENTS    = EVENTS;
+#app              = require 'app'
+# {AtomEnvironment} = require 'atom'
+#atomEnv           = new AtomEnvironment
 
 module.exports =
 class LoginView extends View
   @content: ->
     @div class: 'loginView', =>
       @div class: 'modal fade', outlet: "login", =>
-        @div class: 'modal-dialog modal-lg', =>
+        @div class: 'modal-dialog modal-sm', =>
           @div class: 'modal-content', =>
             @div class: 'modal-header', =>
               @button type: 'button', tabindex: '-1', class: 'icon icon-remove-close close ', 'data-dismiss': 'modal', 'aria-label': 'Close'
@@ -23,36 +26,47 @@ class LoginView extends View
                 @div class: 'form-group', =>
                   @span class: 'fa fa-user fa-3x col-lg-2'
                   @div class: 'col-lg-10', =>
-                    @input class: 'form-control native-key-bindings', tabindex: '3', type: 'text', placeholder: '用户名', outlet:'inputText'
+                    @input class: 'form-control native-key-bindings ',disabled:'disabled',tabindex: '3', type: 'text', placeholder: '用户名', outlet:'inputText'
                 @div class: 'form-group', =>
                   @span class: 'fa fa-key fa-3x col-lg-2'
                   @div class: 'col-lg-10', =>
-                    @input class: 'form-control native-key-bindings', tabindex: '4', type: 'password', placeholder: '密码', outlet:'inputPassword'
+                    @input class: 'form-control native-key-bindings', disabled:'disabled',tabindex: '4', type: 'password', placeholder: '密码', outlet:'inputPassword'
                 @div class: 'form-group', =>
                   @span class: 'fa fa-server fa-3x col-lg-2'
                   @div class: 'col-lg-10', =>
-                    @select class: 'form-control', =>
+                    @select class: 'form-control',outlet:'selectPort',disabled:'disabled', =>
                       @option '165'
                       @option '166'
                 @div class: 'form-group', =>
-                  @div class: 'pull-right col-lg-4', =>
-                    @div class: 'checkbox', =>
-                      @label '记住我', =>
-                        @input type: 'checkbox', tabindex: '6'
+                  @div class:'row', =>
+                    @div class: 'pull-right col-lg-4', =>
+                      @div class: 'checkbox', =>
+                        @label '记住我', =>
+                          @input type: 'checkbox', tabindex: '6'
                 @div class: 'form-group', =>
-                  @span  outlet:'connectinfo', '正在连接服务器......'
+                  @div class: 'col-md-12', =>
+                    @p  class:'text-info', outlet:'connectinfo', '正在连接服务器......'
             @div class: 'modal-footer',=>
-                  @button outlet:'loginSubmit',type: 'button', click:'loginFunc', tabindex: '7', class: 'btn btn-primary btn-lg', '登录'
-                  @button type: 'button', tabindex: '8', 'data-dismiss':'modal', class: 'btn btn-primary btn-lg', '退出'
+                  @button type: 'button', outlet:'loginBtn',  click:'loginFunc', tabindex: '7', class: 'btn btn-primary btn-lg', disabled:'disabled','登录'
+                  @button type: 'button', outlet:'logoutBtn','data-dismiss':'modal',click:'logoutFunc',tabindex: '8', class: 'btn btn-primary btn-lg', '退出'
+      @div class: 'modal fade', outlet: "connectError", =>
+        @div class: 'modal-dialog modal-sm', =>
+          @div class: 'modal-content', =>
+            @div class: 'modal-body', =>
+               @h3 class:'text-center text-danger', '服务器连接断开,无法连接。'
+               @div class:'row', =>
+                 @div class:'col-sm-6 col-sm-offset-4', =>
+                   @button type: 'button', class:'btn-default','data-dismiss':'modal', click:'logoutFunc', '退出程序'
 
   initialize: ->
-    console.log 'initialize this: '
-    console.log this
+    # console.log 'initialize this: '
+    # console.log this
     $('body').append(@login.parent())
-    $(@login[0]).modal('backdrop': 'static', keyboard: false, show: true) #打开客户端即显示登录界面
-    #@loginSubmit.click(@loginFunc)
-    # @loginSubmit.click(=>
-    #     console.log '@loginSubmit!'
+    $(@login[0]).modal('backdrop': 'static', keyboard: false, show: true)         #打开客户端即显示登录界面
+
+    #@loginBtn.click(@loginFunc)
+    # @loginBtn.click(=>
+    #     console.log '@loginBtn!'
     #     userID   = @inputText.val()
     #     password = @inputPassword.val()
     #     userinfo           = new userApiStruct.CShfeFtdcReqQrySysUserLoginField()
@@ -97,18 +111,29 @@ class LoginView extends View
         #       userApi.childProcess.send {event: EVENTS.NewUserCome, reqField: userinfo }
         userApi.childProcess.send {event: EVENTS.NewUserCome, reqField: userinfo }
 
+  logoutFunc: ->
+      #alert 'logoutFunc'
+      #app.quit()
+      atom.close()
+
   attached: ->
       connectServer(this)
       serverMsgFunc(this)
 
   connectServer = (_this)->
       clientMain     = require './client-main.js'
-      window.userApi = clientMain;
+      window.userApi = clientMain
 
   serverMsgFunc = (_this)->
       userApi.emitter.on EVENTS.RootSocketConnect, (data)->
           console.log EVENTS.RootSocketConnect
+          _this.connectinfo.text('服务器连接成功')
           isFirstConnect = false
+          _this.inputText.removeAttr("disabled")
+          _this.inputPassword.removeAttr("disabled")
+          _this.selectPort.removeAttr("disabled")
+          _this.loginBtn.removeAttr("disabled")
+
 
       userApi.emitter.on EVENTS.RootSocketConnectError, (data) ->
           console.log EVENTS.RootSocketConnectError
@@ -128,8 +153,10 @@ class LoginView extends View
           if Number > reconnectLimits
             # 确定链接失败.
             if isFirstConnect
-                _this.connectinfo.text('连接服务器失败, 正在重连......')
+                _this.connectinfo.attr 'class', 'text-success'
+                _this.connectinfo.text '连接服务器失败, 正在重连......'
             else
+                $(_this.connectError[0]).modal('backdrop': 'static', keyboard: false, show: true)  #服务器断开，弹出对话框.
 
       userApi.emitter.on EVENTS.RootSocketReconnectError, (data) ->
           console.log EVENTS.RootSocketReconnectError
@@ -140,9 +167,16 @@ class LoginView extends View
           console.log data
 
       userApi.emitter.on EVENTS.RspQrySysUserLoginTopic, (data) ->
-          $(@login[0]).modal('hide') # 登录成功隐藏对话框
+
           console.log "login-view: RspQrySysUserLoginTopic CallbackData"
           console.log data
+          if data.hasOwnProperty 'pRspQrySysUserLogin'
+          #if $.isEmptyObject(data.pRspInfo)
+            $(_this.login[0]).modal('hide') # 登录成功隐藏对话框
+          else
+            _this.connectinfo.attr 'class', 'text-danger'
+            _this.connectinfo.text '登录错误， 错误消息为: ' + data.pRspInfo.ErrorMsg
+          # "Can't Find User" 105
 
   show: ->
     $(@login[0]).modal 'backdrop': 'static', keyboard: false, show: true
