@@ -7,9 +7,6 @@ reconnectLimits  = 1;
 isFirstConnect   = true;
 window.userApiStruct = SysUserApiStruct;
 window.EVENTS    = EVENTS;
-#app              = require 'app'
-# {AtomEnvironment} = require 'atom'
-#atomEnv           = new AtomEnvironment
 
 module.exports =
 class LoginView extends View
@@ -55,12 +52,10 @@ class LoginView extends View
             @div class: 'modal-body', =>
                @h3 class:'text-center text-danger', '服务器连接断开,无法连接。'
                @div class:'row', =>
-                 @div class:'col-sm-6 col-sm-offset-4', =>
-                   @button type: 'button', class:'btn-default','data-dismiss':'modal', click:'logoutFunc', '退出程序'
+                 @div class:'col-sm-8 col-sm-offset-4', =>
+                   @button type: 'button', class:'btn-default btn-lg','data-dismiss':'modal', click:'logoutFunc', '退出程序'
 
   initialize: ->
-    # console.log 'initialize this: '
-    # console.log this
     $('body').append(@login.parent())
     $(@login[0]).modal('backdrop': 'static', keyboard: false, show: true)         #打开客户端即显示登录界面
 
@@ -101,15 +96,13 @@ class LoginView extends View
           console.log 'checkbox is true!'
           window.userInfo = userinfo
 
-        console.log 'login-view: data from dialog'
-        console.log userinfo
-
         # userApi.childProcess.send {event: EVENTS.StartConnectServer, reqField: {} }
         #
         # userApi.emitter.on EVENTS.ConnectServerComplete, (data)->
         #       console.log "ConnectServerComplete"
         #       userApi.childProcess.send {event: EVENTS.NewUserCome, reqField: userinfo }
-        userApi.childProcess.send {event: EVENTS.NewUserCome, reqField: userinfo }
+        # userApi.childProcess.send {event: EVENTS.NewUserCome, reqField: userinfo }
+        userApi.emitter.emit EVENTS.NewUserCome, userinfo
 
   logoutFunc: ->
       #alert 'logoutFunc'
@@ -171,12 +164,10 @@ class LoginView extends View
           console.log "login-view: RspQrySysUserLoginTopic CallbackData"
           console.log data
           if data.hasOwnProperty 'pRspQrySysUserLogin'
-          #if $.isEmptyObject(data.pRspInfo)
             $(_this.login[0]).modal('hide') # 登录成功隐藏对话框
           else
             _this.connectinfo.attr 'class', 'text-danger'
             _this.connectinfo.text '登录错误， 错误消息为: ' + data.pRspInfo.ErrorMsg
-          # "Can't Find User" 105
 
   show: ->
     $(@login[0]).modal 'backdrop': 'static', keyboard: false, show: true
