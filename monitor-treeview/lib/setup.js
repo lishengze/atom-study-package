@@ -1,27 +1,32 @@
-var setup = function () {
-  var html = '<div>\
-         <div><button class="k-button" id="collapseAllNodes">Collapse</button>\
-          <button class="k-button" id="addUpdate">增 量 更 新</button></div>\
-         <label style = "font-weight:bold" for=\'search-term\'>Search : </label>\
-         <input type=text id = \'search-term\' placeholder = \'I am looking for...\'/></div>\
-         <ul id="menu">\
-         <li id="rename"><i class="fa fa-coffee"></i> Rename</li>\
-    <li id="delete"><i class="fa fa-times"></i>  Delete</li>\
-    </ul>'
-  $('.filterText').append(html)
-  $('.MonitorObjectListPanel').css('min-width', '200px')// 设置treeview窗口的最小宽度
-  var divHeight = 90
-  var windowHeight = window.innerHeight
-  var actHeight = windowHeight - divHeight - 40
-  $('#MonitorObjectListPanel-Treeview').height(actHeight)// 设置treeview窗口的高度
-  $(window).resize(function() {// 根据窗口大小自动调整treeview窗口高度
-   //process here
-    windowHeight = window.innerHeight
-    divHeight = $('#BeforeTreeview').height()
-    var resizeHeight = windowHeight - divHeight - 40
-    $( '#MonitorObjectListPanel-Treeview').height(resizeHeight)// 设置treeview窗口的高度
-  });
-}
+ function creatGridDemo(state) {
+   var Demo = require('./gridDemoView.coffee')
+   var p  = new Demo(state)
+ }
+
+// var setup = function () {
+  // var html = '<div>\
+  //        <div><button class="k-button" id="collapseAllNodes">Collapse</button>\
+  //         <button class="k-button" id="addUpdate">增 量 更 新</button></div>\
+  //        <label style = "font-weight:bold" for=\'search-term\'>Search : </label>\
+  //        <input type=text id = \'search-term\' placeholder = \'I am looking for...\'/></div>\
+  //        <ul id="menu">\
+  //        <li id="rename"><i class="fa fa-coffee"></i> Rename</li>\
+  //   <li id="delete"><i class="fa fa-times"></i>  Delete</li>\
+  //   </ul>'
+  // $('.filterText').append(html)
+  // $('.MonitorObjectListPanel').css('min-width', '200px')// 设置treeview窗口的最小宽度
+  // var divHeight = 90
+  // var windowHeight = window.innerHeight
+  // var actHeight = windowHeight - divHeight - 40
+  // $('#MonitorObjectListPanel-Treeview').height(actHeight)// 设置treeview窗口的高度
+  // $(window).resize(function() {// 根据窗口大小自动调整treeview窗口高度
+  //  //process here
+  //   windowHeight = window.innerHeight
+  //   divHeight = $('#BeforeTreeview').height()
+  //   var resizeHeight = windowHeight - divHeight - 40
+  //   $( '#MonitorObjectListPanel-Treeview').height(resizeHeight)// 设置treeview窗口的高度
+  // });
+// }
   /////////////////////////////////////////////////////////////这些代码为了实现横向滚动条位置跟随treeview高度变化////////////////////////
   // function adjustSize() {
   //   var windowHeight = window.innerHeight
@@ -115,6 +120,14 @@ var searchNode = function (idArray, idx, rst, tracePath) {
       //            if(rst[i].items===null){
       //                rst[i].items=[]
       //            }
+      if(rst[i].items === null) {
+        // 注册uri
+        var uri = rst[i].text
+        atom.workspace.addOpener(function(uri) {
+           return  creatGridDemo(uri)
+        })
+        console.log(creatGridDemo(uri))
+      }
       var searchResult = searchNode(idArray, ++idx, rst[i].items, tracePath)
       return searchResult
     }
@@ -168,14 +181,24 @@ var arrayConverseToJson = function (data) {
   return finalRst
 }
 
-var treeview = $('#MonitorObjectListPanel-Treeview').kendoTreeView({
-  template: "<i class='#= item.FrontAwesomeClass #'></i>#=  item.text #", // 格式很重要~
-  dragAndDrop: true,
-  animation: false,
-  loadOnDemand: false, // 默认为true
-  change: function (e) {}
-}).data('kendoTreeView')
+// var treeview = $('#MonitorObjectListPanel-Treeview').kendoTreeView({
+//   template: "<i class='#= item.FrontAwesomeClass #'></i>#=  item.text #", // 格式很重要~
+//   dragAndDrop: true,
+//   animation: false,
+//   loadOnDemand: false, // 默认为true
+//   select: onSelect,
+//   change: function (e) {}
+// }).data('kendoTreeView')
 
+function onSelect(e) {
+  var dataItem = treeview.dataItem(e.node)
+  // console.log('items' in dataItem)
+  // console.log(dataItem.hasOwnProperty(length))
+  if (( 'items' in dataItem ) === false || dataItem.items.length === 0) {// 判断是否叶子节点
+    // 打开uri
+    atom.workspace.open(('atom://gridDemo'))
+  }
+}
 var renameNode = function (nodeJquery) { // 通过atom的 Panel 改变节点的text值
   var para = document.createElement('input') // Create a <input> element
   para.classList.add('native-key-bindings')
@@ -209,7 +232,7 @@ var treeSelect = function (e) {
   // e.type : type is "select"
   // e.target : the current target of the contentmenu - the current element
   // var dataItem = treeview.dataItem(e.target);//dataItem 获取该节点信息，返回的数据格式为kendo.data.Node
-  console.log(treeview.dataItem(e.target))
+  // console.log(treeview.dataItem(e.target))
   if (typeof e !== 'object') return
   switch (e.item.id) {
     case 'rename' :
@@ -220,26 +243,48 @@ var treeSelect = function (e) {
       break;
   }
 }
-var io = require('socket.io-client')
+// var io = require('socket.io-client')
 var beginReceiveData = function () {
+   treeview = $('#MonitorObjectListPanel-Treeview').kendoTreeView({
+    template: "<i class='#= item.FrontAwesomeClass #'></i>#=  item.text #", // 格式很重要~
+    dragAndDrop: true,
+    animation: false,
+    loadOnDemand: false, // 默认为true
+    select: onSelect,
+    change: function (e) {}
+  }).data('kendoTreeView')
+  console.log('begin receive data')
   $('#menu').kendoContextMenu({
     target: '#MonitorObjectListPanel-Treeview',
     filter: '.k-in',
     select: treeSelect
   })
-  // var url = 'https://172.1.128.169:8000'
-  var url = 'https://localhost:8000'
-  rootSocket = io.connect(url, {secure: true})
-  console.log('FrontConnected!!')
-  rootSocket.emit('ReqQryMonitorObjectTopic')
+  var reqMonitorObjectTopicData = new userApiStruct.CShfeFtdcReqQryMonitorObjectField()
+  var ReqQryMonitorObjectTopicField = {}
+  ReqQryMonitorObjectTopicField.reqObject = reqMonitorObjectTopicData
+  ReqQryMonitorObjectTopicField.RequestId = ++ window.ReqQryMonitorObjectTopicRequestID
+  ReqQryMonitorObjectTopicField.rspMessage =  EVENTS.RspQryMonitorObjectTopic + ReqQryMonitorObjectTopicField.RequestId
 
-  rootSocket.on('ReqQryMonitorObjectTopic CallbackData', function (data) {
-    console.log('ReqQryMonitorObjectTopic CallbackData got!!')
-    var treeviewData = arrayConverseToJson(data)
-    sortData(treeviewData) // 对treeview节点按名字进行排序
-    treeview.setDataSource(new kendo.data.HierarchicalDataSource({
-      data: treeviewData
-    }))
+  console.log(userApi);
+
+  userApi.emitter.on(EVENTS.RspQrySysUserLoginTopic + 1, function(data) {
+    console.log('Login in')
+    userApi.emitter.emit(EVENTS.ReqQryMonitorObjectTopic, ReqQryMonitorObjectTopicField)
+  })
+
+  var treeviewData1 = []
+  userApi.emitter.on(ReqQryMonitorObjectTopicField.rspMessage, function (data) {
+    console.log(ReqQryMonitorObjectTopicField.rspMessage)
+    treeviewData1.push(data.pRspQryMonitorObject)
+    if(data.bIsLast === true) {
+      var treeviewData = arrayConverseToJson(treeviewData1)
+      sortData(treeviewData) // 对treeview节点按名字进行排序
+      console.log(treeviewData)
+      treeview.setDataSource(new kendo.data.HierarchicalDataSource({
+        data: treeviewData
+      }))
+    }
+
   //        var dataSource=treeview.dataSource
   //
   //        dataSource.add({
@@ -416,7 +461,7 @@ var beginReceiveData = function () {
     addUpdate(jsonData)
   })
 }
-var by = function (name) {
+var byName = function (name) {
   return function (o, p) {
     var a
     var b
@@ -440,16 +485,16 @@ var sortNew = function (data) {
     return
   }
   for (var i = 0; i < data.items.length; i++) {
-    data.items.sort(by('text'))
+    data.items.sort(byName('text'))
     sortNew(data.items[i])
   }
 }
 var sortData = function (data) {
   for (var i = 0; i < data.length; i++) {
-    data.sort(by('text'))
+    data.sort(byName('text'))
     sortNew(data[i])
   }
 }
 
-module.exports.setup = setup
+// module.exports.setup = setup
 module.exports.beginReceiveData = beginReceiveData
