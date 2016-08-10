@@ -1,4 +1,5 @@
-_ = require('underscore-plus')
+_ = require('underscore-plus');
+
 function setup(index) {
   // var html = '<div class = "leftContainer"><div class = "gridOne"> </div></div>\
   //             <div class = "rizhi"></div>\
@@ -26,12 +27,20 @@ function setup(index) {
   var templateModel = kendo.template("<strong style = 'color:indianred'>#: title #  </strong>\
                     <i  class = 'gridMax fa fa-clone'></i>\
                     <i  class = ' gridClose fa fa-times'></i>")
+
   var indexData =  [{'指标名称':'对象是否活跃标示','指标ID':'Active'},
           {'指标名称':'日志事件','指标ID':'SyslogEvent'},
           {'指标名称':'已处理告警事件','指标ID':'ProcessedEvent'},
           {'指标名称':'业务进程所在文件系统使用率','指标ID':'DisUsage'},
           {'指标名称':'业务进程CPU使用率','指标ID':'CPUUsage'},
           {'指标名称':'未处理告警事件','指标ID':'UnprocessdEvent'}]
+
+  console.log ("gridDemo setup!");
+
+  userApi.emitter.on('RspQryOidRelationTopicDone', function(rspData){
+    console.log ('GridDemo RspQryOidRelationTopicDone!');
+    console.log (rspData);
+  });
 
   $('#gridOne' + index).kendoGrid({
     scrollable: false,
@@ -49,6 +58,7 @@ function setup(index) {
     dataSource: indexData
   })
   var nodeQueue = []
+
   function onChange() {
     var selectedRows = this.select();
     var dataItem = this.dataItem(selectedRows)
@@ -310,7 +320,7 @@ function setup(index) {
       })
     }
     $('#DisUsageModel' +  index).css({'left' : containerLeft, 'top' : 0, 'width' : screenWidth + borderWidth, 'height' : containerHeight + borderWidth})
-    console.log($('#DisUsageModel' +  index).width())
+    // console.log($('#DisUsageModel' +  index).width())
     var highchartsToolbar = {title : '业务进程所在文件系统使用率'}
     $("#DisUsageToolbar" + index).html(templateModel(highchartsToolbar));
     $('#DisUsage' + index).highcharts('StockChart', {
@@ -366,7 +376,7 @@ function setup(index) {
       })
     }
     $('#CPUUsageModel' +  index).css({'left' : containerLeft, 'top' : 0, 'width' : screenWidth + borderWidth, 'height' : containerHeight + borderWidth})
-    console.log(containerLeft)
+    // console.log(containerLeft)
     var highchartsToolbar = {title : '业务进程CPU使用率'}
     $("#CPUUsageToolbar" + index).html(templateModel(highchartsToolbar));
     $('#CPUUsage' + index).highcharts('StockChart', {
@@ -407,7 +417,7 @@ function setup(index) {
         })
        var chart = $('#CPUUsage' + index).highcharts()
        chart.setSize($('#CPUUsageModel' +  index).width(), $('#CPUUsageModel' +  index).height() - toolbarHeight, false );
-       console.log(screenWidth)
+       // console.log(screenWidth)
        $('#CPUUsageModel' + index).hide()
          //  $("#toobar").hide()
   }
@@ -422,7 +432,7 @@ function setup(index) {
       })
     }
     $('#TestUsageModel' +  index).css({'left' : containerLeft, 'top' : 0, 'width' : screenWidth + borderWidth, 'height' : containerHeight + borderWidth})
-    console.log($('#TestUsageModel' +  index).width())
+    // console.log($('#TestUsageModel' +  index).width())
     var highchartsToolbar = {title : '未处理告警事件'}
     $("#TestUsageToolbar" + index).html(templateModel(highchartsToolbar));
     $('#TestUsage' + index).highcharts('StockChart', {

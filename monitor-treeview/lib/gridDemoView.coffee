@@ -36,7 +36,7 @@ class Demo extends ScrollView
     stopReceiveData()
 
   initialize: ({@uri,@index}) ->
-    console.log @index
+    # console.log @index
     # view = new Demo
     # view.find('div').append('<div class = "leftContainer"></div>')
     # @addClass('leftContainer')

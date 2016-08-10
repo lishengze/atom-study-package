@@ -22,7 +22,7 @@ module.exports =
     index = 0
     atom.workspace.addOpener (filePath) ->
       # console.log filePath
-      creatGridDemo({uri: filePath,index : index++})
+      creatGridDemo({uri: filePath, index : index++})
     #   switch filePath
     #     when gridDemoUri then creatGridDemo(uri: gridDemoUri)
   deactivate: ->
