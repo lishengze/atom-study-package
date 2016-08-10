@@ -1,8 +1,8 @@
 {
   "name": "a1",
   "main": "./lib/a1",
-  "version": "0.0.0",
-  "description": "A short description of your package",
+  "version": "1.0.0",
+  "description": "Test npm publish",
   "keywords": [
   ],
   "repository": "https://github.com/atom/a1",
