@@ -74,7 +74,7 @@ beginReceiveData = (@TreeviewList, @menu)->
     target: treeViewNode
     filter: '.k-in'
     select: treeSelect
-
+  window.IsRspQryOidRelationTopicDone = true;
   reqMonitorObjectTopicData = new userApiStruct.CShfeFtdcReqQryMonitorObjectField()
   ReqQryMonitorObjectTopicField = {}
   ReqQryMonitorObjectTopicField.reqObject = reqMonitorObjectTopicData
@@ -104,7 +104,7 @@ beginReceiveData = (@TreeviewList, @menu)->
 
         treeview.setDataSource new (kendo.data.HierarchicalDataSource)(data: treeviewData)
         return
-
+  
   arrayLeft = 0
   # 所检索到的text剩余个数
   inputValue = ''
@@ -550,7 +550,7 @@ onSelect = (e) ->
   reqQryOidRelationField.rspMessage = EVENTS.RspQryOidRelationTopic + reqQryOidRelationField.RequestId
   window.reqQryOidRelationField = reqQryOidRelationField;
 
-  rspData = [];
+  rspData = []
   userApi.emitter.emit EVENTS.ReqQryOidRelationTopic, reqQryOidRelationField
 
   userApi.emitter.on reqQryOidRelationField.rspMessage, (data)->
@@ -559,7 +559,9 @@ onSelect = (e) ->
     if data.hasOwnProperty 'pRspQryOidRelation'
       rspData.push data.pRspQryOidRelation
       if data.bIsLast == true
+        # console.log reqQryOidRelationField.rspMessage
         userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
+        rspData = []
 
   if 'items' of dataItem == false or dataItem.items.length == 0
     # 判断是否叶子节点
