@@ -27,7 +27,8 @@ var connectServer = function (reqData) {
   	localUrl   = 'https://localhost';
   	serverUrl  = 'https://172.1.128.169';
   	port       = 8000;
-  	curUrl     = serverUrl + ':' + port.toString();
+  	curUrl     = serverUrl;
+    curUrl     += ':' + port.toString();
   	rootSocket = io.connect(curUrl,{secure:true});
   } else {
   	localUrl   = 'http://localhost';
@@ -178,6 +179,11 @@ rootSocket.on(EVENTS.SocketIONewUserReady, function(CurUserSocketioId){
 
 	userSocket.on(EVENTS.FrontConnected, function(callbackData){
         var reqField = LoginReqField;
+        var outputStr = "\n+++++++++  Communication FrontConnected! ++++++++\n";
+        fileData += outputStr + "\n";
+        fs.writeFile(fileName, fileData, function (err) {
+          if (err) throw err;
+        });
 	      userSocket.emit(EVENTS.ReqQrySysUserLoginTopic, reqField);
 	});
 

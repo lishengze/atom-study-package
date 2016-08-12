@@ -57,7 +57,6 @@
 # fileData = "Hello TreeView \n"
 
 treeview = null; #全局 treeview
-
 beginReceiveData = (@TreeviewList, @menu)->
   treeViewNode = @TreeviewList
   treeview = $(treeViewNode).kendoTreeView(
@@ -69,7 +68,7 @@ beginReceiveData = (@TreeviewList, @menu)->
     change: (e) ->
   ).data('kendoTreeView')
 
-
+  console.log 'begin receive data'
   MenuNode = @menu
   $(MenuNode).kendoContextMenu
     target: treeViewNode
@@ -105,7 +104,7 @@ beginReceiveData = (@TreeviewList, @menu)->
 
         treeview.setDataSource new (kendo.data.HierarchicalDataSource)(data: treeviewData)
         return
-
+  
   arrayLeft = 0
   # 所检索到的text剩余个数
   inputValue = ''
@@ -542,7 +541,7 @@ creatGridDemo = (state) ->
 
 onSelect = (e) ->
   dataItem = treeview.dataItem(e.node)
-  # console.log dataItem.id
+  console.log dataItem.id
   reqQryOidRelationData = new userApiStruct.CShfeFtdcReqQryOidRelationField()
   reqQryOidRelationData.ObjectID = dataItem.id
   reqQryOidRelationField = {}
@@ -561,11 +560,19 @@ onSelect = (e) ->
       rspData.push data.pRspQryOidRelation
       if data.bIsLast == true
         # console.log reqQryOidRelationField.rspMessage
-        userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'pageId':data.pRspQryOidRelation.ObjectID}
+        userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
         rspData = []
 
   if 'items' of dataItem == false or dataItem.items.length == 0
-    uri = 'atom://gridViewDemo' + dataItem.id
+    # 判断是否叶子节点
+    # 打开url
+    # i ++
+    uri = 'atom://gridViewDemo' + dataItem.text
+    # uri = 'atom://gridViewDemo' + dataItem.text
+    # console.log 'open uri'
+    # atom.workspace.addOpener (uri) ->
+    #   console.log 'addopen!!!!!!'
+    #   creatGridDemo uri
     atom.workspace.open uri
 
   return

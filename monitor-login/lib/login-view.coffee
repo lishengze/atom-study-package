@@ -72,11 +72,11 @@ class LoginView extends View
     $("#connectErrorLogout").click(logoutFunc)
     $(".loginView").keydown(enterFunc)
 
-    console.log "loginView pid: " + process.pid
+    # console.log "loginView pid: " + process.pid
 
   enterFunc = (event) ->
       if event.keyCode == 13
-        console.log 'Hello Enter!'
+        #console.log 'Hello Enter!'
         loginFunc();
 
   loginFunc = ->
@@ -105,8 +105,8 @@ class LoginView extends View
         # reqQryMonitorObject()
 
         userApi.emitter.on loginReqField.message, (data) =>
-            console.log loginReqField.message
-            console.log data
+            # console.log loginReqField.message
+            # console.log data
 
             if data.hasOwnProperty 'pRspQrySysUserLogin'
               userApi.emitter.emit EVENTS.RspQyrUserLoginSucceed,{}
@@ -138,7 +138,7 @@ class LoginView extends View
 
   serverMsgFunc = (_this)->
       userApi.emitter.on EVENTS.RootSocketConnect, (data)->
-          console.log EVENTS.RootSocketConnect
+          # console.log EVENTS.RootSocketConnect
           _this.connectinfo.text('服务器连接成功')
           isFirstConnect = false
           _this.inputText.removeAttr("disabled")
