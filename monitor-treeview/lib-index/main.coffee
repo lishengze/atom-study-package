@@ -6,7 +6,8 @@ creatGridDemo = (state)->
   Demo = require './gridDemoView.coffee'
   console.log state
   @p = new Demo(state)
-
+  # @p.getTitle state.uri
+  # @p
 module.exports =
   consumeSidebar: (@sidebar) ->
     @panelView = new PanelView() #左侧 package内容栏
@@ -16,11 +17,14 @@ module.exports =
 
 
   activate: (state) ->
+    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
-    window.index = 0
+    index = 0
     atom.workspace.addOpener (filePath) ->
-      creatGridDemo({uri: filePath, index : ++window.index})
-
+      # console.log filePath
+      creatGridDemo({uri: filePath, index : ++index})
+    #   switch filePath
+    #     when gridDemoUri then creatGridDemo(uri: gridDemoUri)
   deactivate: ->
     @subscriptions?.dispose()
     @panel?.destroy()

@@ -1,10 +1,63 @@
+# var setup = function () {
+# var html = '<div>\
+#        <div><button class="k-button" id="collapseAllNodes">Collapse</button>\
+#         <button class="k-button" id="addUpdate">增 量 更 新</button></div>\
+#        <label style = "font-weight:bold" for=\'search-term\'>Search : </label>\
+#        <input type=text id = \'search-term\' placeholder = \'I am looking for...\'/></div>\
+#        <ul id="menu">\
+#        <li id="rename"><i class="fa fa-coffee"></i> Rename</li>\
+#   <li id="delete"><i class="fa fa-times"></i>  Delete</li>\
+#   </ul>'
+# $('.filterText').append(html)
+# $('.MonitorObjectListPanel').css('min-width', '200px')// 设置treeview窗口的最小宽度
+# var divHeight = 90
+# var windowHeight = window.innerHeight
+# var actHeight = windowHeight - divHeight - 40
+# $('#MonitorObjectListPanel-Treeview').height(actHeight)// 设置treeview窗口的高度
+# $(window).resize(function() {// 根据窗口大小自动调整treeview窗口高度
+#  //process here
+#   windowHeight = window.innerHeight
+#   divHeight = $('#BeforeTreeview').height()
+#   var resizeHeight = windowHeight - divHeight - 40
+#   $( '#MonitorObjectListPanel-Treeview').height(resizeHeight)// 设置treeview窗口的高度
+# });
+# }
+#///////////////////////////////////////////////////////////这些代码为了实现横向滚动条位置跟随treeview高度变化////////////////////////
+# function adjustSize() {
+#   var windowHeight = window.innerHeight
+#   var treeviewHeight = $('#MonitorObjectListPanel-Treeview .k-treeview-lines').height() // 获取treeview的实际高度
+# //  console.log('treeviewHeight : ' + treeviewHeight)
+# //  console.log($('.k-treeview-lines'))
+#    divHeight = $('#BeforeTreeview').height()
+#   // console.log(divHeight )
+#   var resizeHeight = windowHeight > treeviewHeight ? treeviewHeight : windowHeight - divHeight -20
+#   $('.tree-view-scroller').height(resizeHeight)// 设置treeview窗口的高度
+# }
+# $(window).resize(function() {
+#    adjustSize()
+# })
+# $('#MonitorObjectListPanel-Treeview .k-treeview-lines').resize(function() {// 根据窗口大小自动调整treeview窗口高度
+#  //process here
+#  adjustSize()
+#  // console.log('resize')
+#   // var windowHeight = window.innerHeight
+#   // var treeviewHeight = $('#MonitorObjectListPanel-Treeview .k-treeview-lines').height()
+#   // console.log('treeviewHeight : ' + treeviewHeight)
+#   // console.log($('.k-treeview-lines'))
+#   // // divHeight = $('#BeforeTreeview').height()
+#   // // console.log(divHeight )
+#   // var resizeHeight = windowHeight - divHeight -20
+#   // $('.tree-view-scroller').height(resizeHeight)// 设置treeview窗口的高度
+# });
+#///////////////////////////////////////////////////////////以上代码///////////////////////
 # fs = require 'fs'
 # path = require 'path'
 # fileName = path.join __dirname, './fs-test.txt'
 # # fileData = "Hello Pid: " + process.pid + '\n';
 # fileData = "Hello TreeView \n"
+#全局 treeview
+treeview = null;
 
-treeview = null; #全局 treeview
 beginReceiveData = (@TreeviewList, @menu)->
   treeViewNode = @TreeviewList
   treeview = $(treeViewNode).kendoTreeView(
@@ -16,7 +69,7 @@ beginReceiveData = (@TreeviewList, @menu)->
     change: (e) ->
   ).data('kendoTreeView')
 
-  console.log 'begin receive data'
+
   MenuNode = @menu
   $(MenuNode).kendoContextMenu
     target: treeViewNode
@@ -49,7 +102,6 @@ beginReceiveData = (@TreeviewList, @menu)->
         sortData treeviewData  # 对treeview节点按名字进行排序
         # console.log 'Sorted TreeView Data: '
         # console.log treeviewData
-
         treeview.setDataSource new (kendo.data.HierarchicalDataSource)(data: treeviewData)
         return
 
@@ -489,7 +541,7 @@ creatGridDemo = (state) ->
 
 onSelect = (e) ->
   dataItem = treeview.dataItem(e.node)
-  console.log dataItem.id
+  # console.log dataItem.id
   reqQryOidRelationData = new userApiStruct.CShfeFtdcReqQryOidRelationField()
   reqQryOidRelationData.ObjectID = dataItem.id
   reqQryOidRelationField = {}
@@ -507,11 +559,13 @@ onSelect = (e) ->
     if data.hasOwnProperty 'pRspQryOidRelation'
       rspData.push data.pRspQryOidRelation
       if data.bIsLast == true
-        userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
+        # console.log reqQryOidRelationField.rspMessage
+        userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'pageId':data.pRspQryOidRelation.ObjectID}
         rspData = []
 
   if 'items' of dataItem == false or dataItem.items.length == 0
     uri = 'atom://gridViewDemo' + dataItem.id
+    console.log ("uri: " + uri);
     atom.workspace.open uri
 
   return

@@ -15,16 +15,16 @@ class Demo extends ScrollView
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'FourSplitScreen', '四分屏'
       @div id : 'leftContainer'+ params.index, class: 'leftContainer', =>
         @div id: 'gridOne'  + params.index, class: 'gridOne AttrItem'
-      # @div id: 'rizhi' + params.index, class: 'rizhi AttrItem'
-      # @div id: 'DisUsageModel' + params.index, class: 'UsageModel AttrItem', =>
-      #   @div id: 'DisUsageToolbar' + params.index, class: 'toolbar k-grid-toolbar'
-      #   @div id: 'DisUsage' + params.index, class: 'highstockChart'
-      # @div id: 'CPUUsageModel' + params.index, class: 'UsageModel AttrItem', =>
-      #   @div id: 'CPUUsageToolbar' + params.index, class: 'toolbar k-grid-toolbar'
-      #   @div id: 'CPUUsage' + params.index, class: 'highstockChart'
-      # @div id: 'TestUsageModel' + params.index, class: 'UsageModel AttrItem', =>
-      #   @div id: 'TestUsageToolbar' + params.index, class: 'toolbar k-grid-toolbar'
-      #   @div id: 'TestUsage' + params.index, class: 'highstockChart'
+      @div id: 'rizhi' + params.index, class: 'rizhi AttrItem'
+      @div id: 'DisUsageModel' + params.index, class: 'UsageModel AttrItem', =>
+        @div id: 'DisUsageToolbar' + params.index, class: 'toolbar k-grid-toolbar'
+        @div id: 'DisUsage' + params.index, class: 'highstockChart'
+      @div id: 'CPUUsageModel' + params.index, class: 'UsageModel AttrItem', =>
+        @div id: 'CPUUsageToolbar' + params.index, class: 'toolbar k-grid-toolbar'
+        @div id: 'CPUUsage' + params.index, class: 'highstockChart'
+      @div id: 'TestUsageModel' + params.index, class: 'UsageModel AttrItem', =>
+        @div id: 'TestUsageToolbar' + params.index, class: 'toolbar k-grid-toolbar'
+        @div id: 'TestUsage' + params.index, class: 'highstockChart'
   attached: ->
     {setup}=require './gridDemo.js'
 
@@ -33,8 +33,8 @@ class Demo extends ScrollView
   detached: ->
 
   initialize: ({@uri,@index}) ->
-    # console.log @uri
-    # console.log @index
+    console.log @uri
+    console.log @index
   serialize: ->
     deserializer: @constructor.name
     uri: @getURI()

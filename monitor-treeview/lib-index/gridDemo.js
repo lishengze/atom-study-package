@@ -17,8 +17,8 @@ function setup(index) {
           {'指标名称':'未处理告警事件','指标ID':'UnprocessdEvent'}]
 
   registerReceiverDataFunc();
-  initializeGridPerfect();
-  // initializeGrid(index, templateModel, gridOnedata, onChange, indexData);
+
+  initializeGrid(index, templateModel, gridOnedata, onChange, indexData);
 }
 
 function registerReceiverDataFunc() {
@@ -39,10 +39,7 @@ function registerReceiverDataFunc() {
           console.log(rspData[tmpindex].HoldObjectID);
         }
       }
-      // initializeGridSimple(indexDataTmp);
-       var grid = $('#gridOne' + window.index).data("kendoGrid");
-       var dataSource = new kendo.data.DataSource({data:indexDataTmp});
-       grid.setDataSource(dataSource);
+      // initializeGrid(indexDataTmp);
        console.log(indexDataTmp);
     });
     window.IsRspQryOidRelationTopicDone = false;
@@ -64,41 +61,6 @@ function initializeGrid(index, templateModel, gridOnedata, onChange, indexData) 
     selectable: "multiple cell",
     sortable: true,
     dataSource: indexData
-  });
-}
-
-function initializeGridSimple(indexData) {
-  $('#gridOne' + window.index).kendoGrid({
-    scrollable: false,
-    resizable: true,
-    toolbar:  templateModel(gridOnedata),
-    columns: [{
-     field: '指标名称',
-    }, {
-     field: '指标ID',
-    }
-    ],
-    change: onChange,
-    selectable: "multiple cell",
-    sortable: true,
-    dataSource: indexData
-  });
-}
-
-function initializeGridPerfect() {
-  $('#gridOne' + window.index).kendoGrid({
-    scrollable: false,
-    resizable: true,
-    toolbar:  templateModel(gridOnedata),
-    columns: [{
-     field: '指标名称',
-    }, {
-     field: '指标ID',
-    }
-    ],
-    change: onChange,
-    selectable: "multiple cell",
-    sortable: true
   });
 }
 

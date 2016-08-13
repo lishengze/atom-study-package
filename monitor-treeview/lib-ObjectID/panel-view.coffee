@@ -51,7 +51,7 @@ class PanelView extends ScrollView
     #stopReceiveData()
 
   initialize: (state) ->
-    console.log "initialize function has been called"
+    # console.log "initialize function has been called"
     @handleEvents()
     # console.log state
     # @width(state.width) if state.width > 0

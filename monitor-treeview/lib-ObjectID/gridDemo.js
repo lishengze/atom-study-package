@@ -2,10 +2,10 @@ _ = require('underscore-plus');
 
 var gridOnedata = {title : '属性列表' }
 var templateModel = kendo.template("<strong style = 'color:indianred'>#: title #  </strong>\
-                  <i  class = 'gridMax fa fa-clone'></i>\
-                  <i  class = ' gridClose fa fa-times'></i>")
+                                    <i class = 'gridMax fa fa-clone'></i>\
+                                    <i class = ' gridClose fa fa-times'></i>");
 
-function setup(index) {
+function setup(pageId) {
 
   window.configData = getConfigData();
 
@@ -16,18 +16,23 @@ function setup(index) {
           {'指标名称':'业务进程CPU使用率','指标ID':'CPUUsage'},
           {'指标名称':'未处理告警事件','指标ID':'UnprocessdEvent'}]
 
+  initializeGridSimple(pageId, indexData);
+
   registerReceiverDataFunc();
-  initializeGridPerfect();
-  // initializeGrid(index, templateModel, gridOnedata, onChange, indexData);
+}
+
+function onChange() {
+  var selectedRows = this.select();
+  console.log ($(selectedRows).text());
 }
 
 function registerReceiverDataFunc() {
   if (true === window.IsRspQryOidRelationTopicDone) {
-    userApi.emitter.on('RspQryOidRelationTopicDone', function(rspData){
-      // console.log ('GridDemo RspQryOidRelationTopicDone!');
-      // console.log (rspData);
+    userApi.emitter.on('RspQryOidRelationTopicDone', function(gridInnerData){
       var indexDataTmp = [];
       var tmpItem = {};
+      var rspData = gridInnerData.rspData;
+
       for (var tmpindex = 0; tmpindex < rspData.length; ++tmpindex) {
         if (configData[rspData[tmpindex].HoldObjectID] !== undefined) {
           tmpItem = {
@@ -39,18 +44,33 @@ function registerReceiverDataFunc() {
           console.log(rspData[tmpindex].HoldObjectID);
         }
       }
-      // initializeGridSimple(indexDataTmp);
-       var grid = $('#gridOne' + window.index).data("kendoGrid");
-       var dataSource = new kendo.data.DataSource({data:indexDataTmp});
-       grid.setDataSource(dataSource);
        console.log(indexDataTmp);
+       // initializeGridSimple(gridInnerData.pageId, indexDataTmp)
+      //  var dataSource = new kendo.data.DataSource({indexDataTmp});
+      //  var grid = $('#gridOne' + gridInnerData.pageId).data("kendoGrid");
+      //  console.log ('registerReceiverDataFunc: #gridOne' + gridInnerData.pageId)
+      //  console.log (grid)
+       // grid.setDataSource(dataSource)
     });
     window.IsRspQryOidRelationTopicDone = false;
   }
 }
 
-function initializeGrid(index, templateModel, gridOnedata, onChange, indexData) {
-  $('#gridOne' + index).kendoGrid({
+function initializeGridSimple(pageId, indexData) {
+  console.log ('gridOne' + pageId)
+
+  console.log ($('leftContainer'+pageId).attr("class"));
+  // console.log ($('gridOne'+pageId).attr("class"));
+  console.log($('#gridOne').attr("class"));
+
+  // console.log ($(".leftContainer").attr("id"))
+  // console.log ($(".gridOneAttrItemOne").attr("id"));
+  // console.log ($(".gridOneAttrItemTwo").attr("id"));
+
+  // $('#gridOne' + pageId).height(window.innerHeight - 100)
+  // $('#gridOne' + pageId).kendoGrid({
+  $('#gridOne').height(window.innerHeight - 100)
+  $('#gridOne').kendoGrid({
     scrollable: false,
     resizable: true,
     toolbar:  templateModel(gridOnedata),
@@ -64,41 +84,6 @@ function initializeGrid(index, templateModel, gridOnedata, onChange, indexData) 
     selectable: "multiple cell",
     sortable: true,
     dataSource: indexData
-  });
-}
-
-function initializeGridSimple(indexData) {
-  $('#gridOne' + window.index).kendoGrid({
-    scrollable: false,
-    resizable: true,
-    toolbar:  templateModel(gridOnedata),
-    columns: [{
-     field: '指标名称',
-    }, {
-     field: '指标ID',
-    }
-    ],
-    change: onChange,
-    selectable: "multiple cell",
-    sortable: true,
-    dataSource: indexData
-  });
-}
-
-function initializeGridPerfect() {
-  $('#gridOne' + window.index).kendoGrid({
-    scrollable: false,
-    resizable: true,
-    toolbar:  templateModel(gridOnedata),
-    columns: [{
-     field: '指标名称',
-    }, {
-     field: '指标ID',
-    }
-    ],
-    change: onChange,
-    selectable: "multiple cell",
-    sortable: true
   });
 }
 
@@ -137,9 +122,17 @@ function getConfigData() {
     return transAttrData;
 }
 
-function onChange() {
-  var selectedRows = this.select();
-  console.log ($(selectedRows).text());
+function initialDataGenerator() { // 构建初始随机值
+  var Mydata = []
+  var time = (new Date()).getTime()
+  var i
+  for (i = -1002; i <= 0; i += 1) {
+    Mydata.push([
+      time + i * 1000,
+      Math.ceil(Math.random() * 100)
+    ])
+  }
+  return Mydata
 }
 
 module.exports.setup = setup

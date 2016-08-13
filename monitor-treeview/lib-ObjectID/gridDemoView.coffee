@@ -6,15 +6,18 @@ $=require('atom-space-pen-views').$
 
 module.exports =
 class Demo extends ScrollView
-  @content : (params) ->
+  @content : (pageId) ->
+    # console.log params
     @div class: 'baobiaoContainer pane-item native-key-bindings timecop', tabindex: -1, =>
       @div class: 'block',=>
         @button  class: 'SplitScreenBtn btn btn-lg', id:'ASplitScreen', '一分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'BinaryScreen', '二分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id:'ThreeSplitScreen', '三分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'FourSplitScreen', '四分屏'
-      @div id : 'leftContainer'+ params.index, class: 'leftContainer', =>
-        @div id: 'gridOne'  + params.index, class: 'gridOne AttrItem'
+      @div id: 'leftContainer'+pageId, class: 'leftContainer', =>
+        # @div id: 'gridOne'+pageId, class: 'gridOneAttrItemOne', =>
+          @div id: 'gridOne', class: 'gridOne AttrItem', =>
+        #     @div id: 'gridTow', class: 'gridOneAttrItemThree'
       # @div id: 'rizhi' + params.index, class: 'rizhi AttrItem'
       # @div id: 'DisUsageModel' + params.index, class: 'UsageModel AttrItem', =>
       #   @div id: 'DisUsageToolbar' + params.index, class: 'toolbar k-grid-toolbar'
@@ -27,19 +30,18 @@ class Demo extends ScrollView
       #   @div id: 'TestUsage' + params.index, class: 'highstockChart'
   attached: ->
     {setup}=require './gridDemo.js'
-
-    setup(@index)
+    setup(@pageId)
 
   detached: ->
 
-  initialize: ({@uri,@index}) ->
-    # console.log @uri
-    # console.log @index
+  initialize: (@pageId) ->
+     # console.log @pageId
+
   serialize: ->
     deserializer: @constructor.name
-    uri: @getURI()
+    pageId: @getURI()
 
-  getURI: -> @uri
+  getURI: -> @pageId
 
   getTitle: ->
-    @uri.substring(19)
+    @pageId
