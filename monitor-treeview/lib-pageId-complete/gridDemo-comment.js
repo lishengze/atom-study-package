@@ -22,12 +22,6 @@
 //   $( '#gridOne' + index).height(resizeHeight)// 设置treeview窗口的高度
 // });
 
-// var indexData =  [{'指标名称':'对象是否活跃标示','指标ID':'Active'},
-//         {'指标名称':'日志事件','指标ID':'SyslogEvent'},
-//         {'指标名称':'已处理告警事件','指标ID':'ProcessedEvent'},
-//         {'指标名称':'业务进程所在文件系统使用率','指标ID':'DisUsage'},
-//         {'指标名称':'业务进程CPU使用率','指标ID':'CPUUsage'},
-//         {'指标名称':'未处理告警事件','指标ID':'UnprocessdEvent'}]
 
 // var nodeQueue = []
 //

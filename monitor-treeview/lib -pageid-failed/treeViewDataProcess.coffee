@@ -16,7 +16,7 @@ beginReceiveData = (@TreeviewList, @menu)->
     change: (e) ->
   ).data('kendoTreeView')
 
-  # console.log 'begin receive data'
+  console.log 'begin receive data'
   MenuNode = @menu
   $(MenuNode).kendoContextMenu
     target: treeViewNode
@@ -497,7 +497,7 @@ onSelect = (e) ->
   reqQryOidRelationField.RequestId  = ++window.ReqQryOidRelationTopicRequestID
   reqQryOidRelationField.rspMessage = EVENTS.RspQryOidRelationTopic + reqQryOidRelationField.RequestId
   window.reqQryOidRelationField = reqQryOidRelationField;
-  window.isPageID = true;
+
   rspData = []
   userApi.emitter.emit EVENTS.ReqQryOidRelationTopic, reqQryOidRelationField
 
@@ -507,9 +507,7 @@ onSelect = (e) ->
     if data.hasOwnProperty 'pRspQryOidRelation'
       rspData.push data.pRspQryOidRelation
       if data.bIsLast == true
-        # userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
-        pageId = getObjectID(data.pRspQryOidRelation.ObjectID)
-        userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'pageId':pageId}
+        userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
         rspData = []
 
   if 'items' of dataItem == false or dataItem.items.length == 0

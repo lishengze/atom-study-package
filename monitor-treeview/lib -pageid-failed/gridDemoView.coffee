@@ -14,11 +14,7 @@ class Demo extends ScrollView
         @button  class: 'SplitScreenBtn btn btn-lg', id:'ThreeSplitScreen', '三分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'FourSplitScreen', '四分屏'
       @div id : 'leftContainer'+ params.index, class: 'leftContainer', =>
-      # @div id: 'gridData', =>
-        @div id: 'gridOne'  + params.index, class: 'gridOne AttrItem', =>
-          @div id: params.pageId
-          # @div id: 'gridOneDEF', =>
-          #   @div id: 'gridOne.H.I.J'
+        @div id: 'gridOne'  + params.index, class: 'gridOne AttrItem'
       # @div id: 'rizhi' + params.index, class: 'rizhi AttrItem'
       # @div id: 'DisUsageModel' + params.index, class: 'UsageModel AttrItem', =>
       #   @div id: 'DisUsageToolbar' + params.index, class: 'toolbar k-grid-toolbar'
@@ -36,10 +32,9 @@ class Demo extends ScrollView
 
   detached: ->
 
-  initialize: ({@uri,@index,@pageId}) ->
+  initialize: ({@uri,@index}) ->
     # console.log @uri
     # console.log @index
-    # console.log @pageId
   serialize: ->
     deserializer: @constructor.name
     uri: @getURI()

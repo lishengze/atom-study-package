@@ -1,18 +1,11 @@
 SidebarIconView = require './sidebarIcon-view'
 {CompositeDisposable} = require 'atom'
 PanelView = require './panel-view.coffee'
-
+# gridDemoUri = 'atom://gridDemo'
 creatGridDemo = (state)->
   Demo = require './gridDemoView.coffee'
-  # console.log state
+  console.log state
   @p = new Demo(state)
-
-window.getObjectID = (originalString) ->
-  stringArray = originalString.split(".")
-  transString = ""
-  for value in stringArray
-    transString += value
-  return transString
 
 module.exports =
   consumeSidebar: (@sidebar) ->
@@ -21,19 +14,12 @@ module.exports =
     @sidebarIconView = new SidebarIconView(@panel)
     @sidebarTile = @sidebar.addTile(item: @sidebarIconView, priority: 1)
 
+
   activate: (state) ->
     @subscriptions = new CompositeDisposable
     window.index = 0
-
     atom.workspace.addOpener (filePath) ->
-      originalPageId = filePath.substring(("atom://gridViewDemo").length)
-      transPageId = getObjectID(originalPageId)
-      console.log originalPageId
-
-      if true == window.isPageID
-        creatGridDemo({uri: filePath, index : transPageId, pageId: originalPageId})
-      else
-        creatGridDemo({uri: filePath, index : ++window.index, pageId: originalPageId})
+      creatGridDemo({uri: filePath, index : ++window.index})
 
   deactivate: ->
     @subscriptions?.dispose()
@@ -42,4 +28,5 @@ module.exports =
     @sidebarTile?.destroy()
 
   serialize: ->
+    # console.log 'serialize'
     monitorTreeviewViewState: @sidebarIconView.serialize()

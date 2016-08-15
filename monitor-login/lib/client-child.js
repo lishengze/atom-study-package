@@ -8,6 +8,7 @@ var io                  = require('socket.io-client');
 var path                = require('path');
 var myDate              = new Date();
 var isHttps             = true;
+var isLocal             = false;
 var connectTimeLimit    = 10000;
 var rootSocketStartTime = myDate.getTime();
 
@@ -27,13 +28,21 @@ var connectServer = function (reqData) {
   	localUrl   = 'https://localhost';
   	serverUrl  = 'https://172.1.128.169';
   	port       = 8000;
-  	curUrl     = serverUrl;
+    if (true === isLocal) {
+      curUrl = localUrl;
+    } else {
+      curUrl = serverUrl;
+    }
     curUrl     += ':' + port.toString();
   	rootSocket = io.connect(curUrl,{secure:true});
   } else {
   	localUrl   = 'http://localhost';
     serverUrl  = 'http://172.1.128.169';
-    curUrl     = localUrl;
+    if (true === isLocal) {
+      curUrl = localUrl;
+    } else {
+      curUrl = serverUrl;
+    }
   	rootSocket = io.connect(curUrl);
   }
 };

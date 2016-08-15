@@ -110,7 +110,7 @@ class LoginView extends View
 
             if data.hasOwnProperty 'pRspQrySysUserLogin'
               userApi.emitter.emit EVENTS.RspQyrUserLoginSucceed,{}
-
+              # console.log data
               # # 测试同一个客户端是否可以同时两次登录同一个用户, 结果是可以。
               # console.log 'LoginTimes: ' + LoginTimes++
               # if LoginTimes < 3

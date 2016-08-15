@@ -16,7 +16,6 @@ class Demo extends ScrollView
       @div id : 'leftContainer'+ params.index, class: 'leftContainer', =>
       # @div id: 'gridData', =>
         @div id: 'gridOne'  + params.index, class: 'gridOne AttrItem', =>
-          @div id: params.pageId
           # @div id: 'gridOneDEF', =>
           #   @div id: 'gridOne.H.I.J'
       # @div id: 'rizhi' + params.index, class: 'rizhi AttrItem'
@@ -36,10 +35,9 @@ class Demo extends ScrollView
 
   detached: ->
 
-  initialize: ({@uri,@index,@pageId}) ->
+  initialize: ({@uri,@index}) ->
     # console.log @uri
     # console.log @index
-    # console.log @pageId
   serialize: ->
     deserializer: @constructor.name
     uri: @getURI()

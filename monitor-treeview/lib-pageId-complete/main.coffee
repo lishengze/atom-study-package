@@ -26,14 +26,14 @@ module.exports =
     window.index = 0
 
     atom.workspace.addOpener (filePath) ->
-      originalPageId = filePath.substring(("atom://gridViewDemo").length)
-      transPageId = getObjectID(originalPageId)
-      console.log originalPageId
+      pageId = filePath.substring(("atom://gridViewDemo").length)
+      pageId = getObjectID(pageId)
+      console.log pageId
 
       if true == window.isPageID
-        creatGridDemo({uri: filePath, index : transPageId, pageId: originalPageId})
+        creatGridDemo({uri: filePath, index : pageId})
       else
-        creatGridDemo({uri: filePath, index : ++window.index, pageId: originalPageId})
+        creatGridDemo({uri: filePath, index : ++window.index})
 
   deactivate: ->
     @subscriptions?.dispose()

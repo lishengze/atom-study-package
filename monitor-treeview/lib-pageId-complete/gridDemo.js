@@ -6,15 +6,23 @@ var templateModel = kendo.template("<strong style = 'color:indianred'>#: title #
                   <i  class = ' gridClose fa fa-times'></i>")
 
 function setup(index) {
+
   window.configData = getConfigData();
-  registerRspQryOidRelationTopicDone();
-  initializeGrid(index);
+
+  var indexData =  [{'指标名称':'对象是否活跃标示','指标ID':'Active'},
+          {'指标名称':'日志事件','指标ID':'SyslogEvent'},
+          {'指标名称':'已处理告警事件','指标ID':'ProcessedEvent'},
+          {'指标名称':'业务进程所在文件系统使用率','指标ID':'DisUsage'},
+          {'指标名称':'业务进程CPU使用率','指标ID':'CPUUsage'},
+          {'指标名称':'未处理告警事件','指标ID':'UnprocessdEvent'}]
+
+  registerReceiverDataFunc();
+  initializeGridPerfect(index);
 }
 
-function registerRspQryOidRelationTopicDone() {
+function registerReceiverDataFunc() {
   if (true === window.IsRspQryOidRelationTopicDone) {
     userApi.emitter.on('RspQryOidRelationTopicDone', function(gridRspData){
-      console.log (gridRspData);
       var indexDataTmp = [];
       var tmpItem = {};
       var rspData = gridRspData.rspData;
@@ -29,7 +37,7 @@ function registerRspQryOidRelationTopicDone() {
           console.log(rspData[tmpindex].HoldObjectID);
         }
       }
-      console.log (indexDataTmp);
+
       if (true === window.isPageID) {
         var gridNodeId = '#gridOne' + gridRspData.pageId;
       } else {
@@ -49,13 +57,7 @@ function registerRspQryOidRelationTopicDone() {
   }
 }
 
-function registerRspQryObjectAttrTopic(eventName) {
-  userApi.emitter.on(eventName, function(data){
-    console.log(data);
-  });
-}
-
-function initializeGrid(index) {
+function initializeGridPerfect(index) {
   $('#gridOne' + index).kendoGrid({
     scrollable: false,
     resizable: true,
@@ -69,6 +71,42 @@ function initializeGrid(index) {
     change: onChange,
     selectable: "multiple cell",
     sortable: true
+  });
+}
+
+function initializeGrid(index, templateModel, gridOnedata, onChange, indexData) {
+  $('#gridOne' + index).kendoGrid({
+    scrollable: false,
+    resizable: true,
+    toolbar:  templateModel(gridOnedata),
+    columns: [{
+     field: '指标名称',
+    }, {
+     field: '指标ID',
+    }
+    ],
+    change: onChange,
+    selectable: "multiple cell",
+    sortable: true,
+    dataSource: indexData
+  });
+}
+
+function initializeGridSimple(indexData) {
+  $('#gridOne' + window.index).kendoGrid({
+    scrollable: false,
+    resizable: true,
+    toolbar:  templateModel(gridOnedata),
+    columns: [{
+     field: '指标名称',
+    }, {
+     field: '指标ID',
+    }
+    ],
+    change: onChange,
+    selectable: "multiple cell",
+    sortable: true,
+    dataSource: indexData
   });
 }
 
@@ -109,26 +147,7 @@ function getConfigData() {
 
 function onChange() {
   var selectedRows = this.select();
-
-  console.log ('ObjectID: ' + this.element[0].childNodes[1].id);
-  console.log ('HoldObjectID: ' + $(selectedRows).text());
-
-  reqQryObjectAttrFunc(this.element[0].childNodes[1].id, $(selectedRows).text());
+  console.log ($(selectedRows).text());
 }
-
-function reqQryObjectAttrFunc(objectID, attrType) {
-  var reqQryObjectAttrData = new userApiStruct.CShfeFtdcReqQryObjectAttrField();
-  reqQryObjectAttrData.ObjectID = objectID;
-  reqQryObjectAttrData.AttrType = attrType;
-  var reqQryObjectAttrField = {};
-  reqQryObjectAttrField.reqObject  = reqQryObjectAttrData;
-  reqQryObjectAttrField.RequestId  = ++window.ReqQryObjectAttrTopicRequestID;
-  reqQryObjectAttrField.rspMessage = EVENTS.RspQryObjectAttrTopic + reqQryObjectAttrField.RequestId;
-
-  registerRspQryObjectAttrTopic(reqQryObjectAttrField.rspMessage);
-
-  userApi.emitter.emit(EVENTS.ReqQryObjectAttrTopic, reqQryObjectAttrField);
-}
-
 
 module.exports.setup = setup
