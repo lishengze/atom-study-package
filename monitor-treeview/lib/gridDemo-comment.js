@@ -15,6 +15,7 @@
 // var zIndex = 0
 // var screenSelect = 1 // 全局参数，表示选择的分屏个数
 // $('#gridOne' + index).height(window.innerHeight - 100)
+
 // $(window).resize(function() {// 根据窗口大小自动调整treeview窗口高度
 //  //process here
 //   windowHeight = window.innerHeight
@@ -30,11 +31,12 @@
 //         {'指标名称':'未处理告警事件','指标ID':'UnprocessdEvent'}]
 
 // var nodeQueue = []
-//
+
 // SyslogEvent()
 // CPUUsage()
 // DisUsage()
 // TestUsageModel()
+
 // // 鼠标响应事件
 // // 记录节点的大小和位置信息
 // var nodeWidth  = 0
@@ -44,6 +46,7 @@
 // // var chartNode =  $('#CPUUsage').parents('baobiaoContainer').find('#CPUUsage')
 // // var chart = $('#CPUUsage').highcharts()
 // // console.log(chart)
+
 // function resizeWindow(node) {
 //   // var toolbarHeight = 2 * parseInt($('#CPUUsageModel' + index ).css('border-width')) + $('.k-grid-toolbar').height() //计算出边框和toolbar的高度。便于设定 Highcharts高度
 //   console.log(toolbarHeight);
@@ -75,6 +78,7 @@
 //      }
 //   }
 // }
+
 // $('.SplitScreenBtn').click(function(e) {
 //   if(this.id === 'BinaryScreen') {
 //     screenSelect = 2
@@ -90,6 +94,7 @@
 //     nodePostion(screenSelect)
 //   }
 // })
+
 // function nodePostion(num) {
 //   if(num <= 0 || num > 4) return
 //   if(num < 4 && num > 0) {
@@ -159,21 +164,25 @@
 // //    }
 // //  }
 // }
+
 // $('.k-grid-toolbar').dblclick(function(e) { //toolbar 双击操作
 //   i ++
 //   var node = $(this).parent()
 //   resizeWindow(node)
 // })
+
 // $('.gridClose').click(function(e) { //关闭
 //   var node = $(this).parent().parent()
 //   $(node).hide()
 // })
+
 // $('.gridMax').click(function(e) { //放大缩小
 //   i ++
 //   var node = $(this).parent().parent()
 //   console.log(node)
 //   resizeWindow(node)
 // })
+
 // document.onclick = function(e) { //将鼠标点击的属性对象放置最上层
 //   $(e.target).parents('.AttrItem').css('z-index',  ++ zIndex)
 // }
@@ -189,6 +198,7 @@
 //   iDiffY = e.pageY - $(this).offset().top
 //   return false
 // })
+
 // document.onmousemove = function(e) {
 //   if (dragging) {
 //     var nodeLeft = window.innerWidth - $('.baobiaoContainer').width() - $('.tree-view-resize-handle').width()/2 // left 位置
@@ -197,6 +207,7 @@
 //     return false;
 //   }
 // }
+
 // $(document).mouseup(function (e) {
 //   dragging = false
 // })
@@ -249,6 +260,7 @@
 //   })
 //   $(rizhiNode).hide()
 // }
+
 // function DisUsage() {
 //   var initialData = initialDataGenerator()
 //   var seriesData = []
@@ -305,6 +317,7 @@
 //      $('#DisUsageModel' + index).hide()
 //        //  $("#toobar").hide()
 // }
+
 // function CPUUsage() {
 //   var initialData = initialDataGenerator()
 //   var seriesData = []
@@ -431,12 +444,12 @@
 //   }
 //   return Mydata
 // }
-//
+
 // function beginReceiveData() {
-//
+
 // }
 // function stopReceiveData() {
-//
+
 // }
 // module.exports.beginReceiveData = beginReceiveData
 // module.exports.stopReceiveData = stopReceiveData

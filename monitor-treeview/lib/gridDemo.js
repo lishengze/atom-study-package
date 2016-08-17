@@ -5,10 +5,10 @@ var templateModel = kendo.template("<strong style = 'color:indianred'>#: title #
                   <i  class = 'gridMax fa fa-clone'></i>\
                   <i  class = ' gridClose fa fa-times'></i>")
 
-function setup(index) {
+function setup(gridID, pageID) {
   window.configData = getConfigData();
   registerRspQryOidRelationTopicDone();
-  initializeGrid(index);
+  initializeGrid(gridID, pageID);
 }
 
 function registerRspQryOidRelationTopicDone() {
@@ -49,8 +49,19 @@ function registerRspQryOidRelationTopicDone() {
   }
 }
 
-function initializeGrid(index) {
-  $('#gridOne' + index).kendoGrid({
+function initializeGrid(gridID, pageID) {
+  console.log("gridID: " + gridID);
+  console.log("pageID: " + pageID);
+
+  var gridHtml = '<div id="leftContainer'+ gridID +'" class="leftContainer">\
+                    <div id="gridOne'+ gridID +'" class="gridOne AttrItem">\
+                     <div id="'+ pageID +'"></div>\
+                    </div>\
+                  </div>';
+  $("#gridData").append(gridHtml);
+  console.log($("#gridData").html());
+
+  $('#gridOne' + gridID).kendoGrid({
     scrollable: false,
     resizable: true,
     toolbar:  templateModel(gridOnedata),

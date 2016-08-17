@@ -13,10 +13,10 @@ class Demo extends ScrollView
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'BinaryScreen', '二分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id:'ThreeSplitScreen', '三分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'FourSplitScreen', '四分屏'
-      @div id : 'leftContainer'+ params.index, class: 'leftContainer', =>
-      # @div id: 'gridData', =>
-        @div id: 'gridOne'  + params.index, class: 'gridOne AttrItem', =>
-          @div id: params.pageId
+      @div id : 'gridData', =>
+      # @div id : 'leftContainer'+ params.gridID, class: 'leftContainer', =>
+      #   @div id: 'gridOne'  + params.gridID, class: 'gridOne AttrItem', =>
+      #     @div id: params.pageId
           # @div id: 'gridOneDEF', =>
           #   @div id: 'gridOne.H.I.J'
       # @div id: 'rizhi' + params.index, class: 'rizhi AttrItem'
@@ -32,11 +32,11 @@ class Demo extends ScrollView
   attached: ->
     {setup}=require './gridDemo.js'
 
-    setup(@index)
+    setup(@gridID, @pageId)
 
   detached: ->
 
-  initialize: ({@uri,@index,@pageId}) ->
+  initialize: ({@uri,@gridID,@pageId}) ->
     # console.log @uri
     # console.log @index
     # console.log @pageId
