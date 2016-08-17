@@ -49,12 +49,6 @@ function registerRspQryOidRelationTopicDone() {
   }
 }
 
-function registerRspQryObjectAttrTopic(eventName) {
-  userApi.emitter.on(eventName, function(data){
-    console.log(data);
-  });
-}
-
 function initializeGrid(index) {
   $('#gridOne' + index).kendoGrid({
     scrollable: false,
@@ -109,11 +103,20 @@ function getConfigData() {
 
 function onChange() {
   var selectedRows = this.select();
+  var objectID = this.element[0].childNodes[1].id;
+  var HoldObjectID = $(selectedRows).text();
 
-  console.log ('ObjectID: ' + this.element[0].childNodes[1].id);
-  console.log ('HoldObjectID: ' + $(selectedRows).text());
+  console.log ('ObjectID: ' + objectID);
+  console.log ('HoldObjectID: ' + HoldObjectID);
 
-  reqQryObjectAttrFunc(this.element[0].childNodes[1].id, $(selectedRows).text());
+  reqQryObjectAttrFunc(objectID, HoldObjectID);
+  reqQrySubscriberFunc(objectID, HoldObjectID);
+}
+
+function registerRspQryObjectAttrTopic(eventName) {
+  userApi.emitter.on(eventName, function(data){
+    console.log(data);
+  });
 }
 
 function reqQryObjectAttrFunc(objectID, attrType) {
@@ -130,5 +133,26 @@ function reqQryObjectAttrFunc(objectID, attrType) {
   userApi.emitter.emit(EVENTS.ReqQryObjectAttrTopic, reqQryObjectAttrField);
 }
 
+function registerRtnObjectAttrTopic(eventName) {
+  userApi.emitter.on(eventName, function(data){
+    console.log(data);
+  });
+}
+
+function reqQrySubscriberFunc(objectID, attrType){
+  var reqQrySubscriberData = new userApiStruct.CShfeFtdcReqQrySubscriberField();
+  reqQrySubscriberData.ObjectID  = objectID+'.'+attrType;
+  reqQrySubscriberData.ObjectNum = -1;
+  reqQrySubscriberData.KeepAlive = 1;
+  // console.log (reqQrySubscriberData.ObjectID);
+  var reqQrySubscriberField = {}
+  reqQrySubscriberField.reqObject  = reqQrySubscriberData;
+  reqQrySubscriberField.RequestId  = ++window.ReqQrySubscriberTopicRequestID;
+  reqQrySubscriberField.rtnMessage = EVENTS.RtnObjectAttrTopic;
+
+  registerRtnObjectAttrTopic(reqQrySubscriberField.rtnMessage);
+
+  userApi.emitter.emit(EVENTS.ReqQrySubscriberTopic, reqQrySubscriberField);
+}
 
 module.exports.setup = setup
