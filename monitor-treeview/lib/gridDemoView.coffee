@@ -31,7 +31,7 @@ class Demo extends ScrollView
   attached: ->
     {setup}=require './gridDemo.js'
 
-    setup(@gridID, @pageID)
+    setup(@gridID, @pageID, this)
 
   detached: ->
 
@@ -44,16 +44,16 @@ class Demo extends ScrollView
     # testHtml = "<div id=\"HaHaHaHa#{@gridID}\">#{@gridID}</div>"
     # @testAppend.append testHtml
 
-    gridHtml = "<div id=\"leftContainer#{@gridID}\" class=\"leftContainer\">
-                <div id=\"gridOne#{@gridID}\" class=\"gridOne AttrItem\">
-                <div id=\"#{@pageID}\"></div></div></div>"
+    # gridHtml = "<div id=\"leftContainer#{@gridID}\" class=\"leftContainer\">
+    #             <div id=\"gridOne#{@gridID}\" class=\"gridOne AttrItem\">
+    #             <div id=\"#{@pageID}\"></div></div></div>"
 
     # gridHtml = "<div id=\"leftContainer"+@gridID+"\" class=\"leftContainer\">
     #             <div id=\"gridOne"+@gridID+"\" class=\"gridOne AttrItem\">
     #             <div id=\""+@pageID+"\"></div></div></div>"          
 
     # console.log gridHtml
-    @gridData.append gridHtml 
+    # @gridData.append gridHtml 
 
   serialize: ->
     deserializer: @constructor.name

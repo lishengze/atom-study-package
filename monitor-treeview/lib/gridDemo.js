@@ -5,14 +5,15 @@ var templateModel = kendo.template("<strong style = 'color:indianred'>#: title #
                   <i  class = 'gridMax fa fa-clone'></i>\
                   <i  class = ' gridClose fa fa-times'></i>")
 
-function setup(gridID, pageID) {
+function setup(gridID, pageID, pagePointer) {
+
   window.configData = getConfigData();
 
   registerRspQryOidRelationTopicDone();  
 
   registerRtnObjectAttrTopic();
 
-  initializeGrid(gridID, pageID);
+  initializeGrid(gridID, pageID, pagePointer);
 }
 
 // 注册grid回调函数。数据接收完成后，进行页面的数据源设置。只注册一次。
@@ -40,11 +41,6 @@ function registerRspQryOidRelationTopicDone() {
       } else {
         var gridNodeId = '#gridOne' + window.index;
       }
-      // console.log('gridNodeId: ' + gridNodeId);
-      // console.log (gridNodeId + '.class: ' + $(gridNodeId).attr('class'));
-      // console.log ($('.gridOne AttrItem').attr('id'));
-      // console.log ($("#gridOneDEF").html());
-      // console.log ($('#gridData').html());
 
       var grid = $(gridNodeId).data("kendoGrid");
       var dataSource = new kendo.data.DataSource({data:indexDataTmp});
@@ -54,32 +50,26 @@ function registerRspQryOidRelationTopicDone() {
       // console.log($(gridNodeId).html());
       // console.log($(gridNodeId).parent().html());
 
-      console.log('$(gridNodeId).parent().parent().parent().html()');
-      console.log($(gridNodeId).parent().parent().parent().html());
+      // console.log('$(gridNodeId).parent().parent().parent().html()');
+      // console.log($(gridNodeId).parent().parent().parent().html());
     });
     window.IsRspQryOidRelationTopicDone = true;
   }
 }
 
-function initializeGrid(gridID, pageID) {
-  console.log("gridID: " + gridID);
-  console.log("pageID: " + pageID);
+function initializeGrid(gridID, pageID, pagePointer) {
+  console.log("pagePointer.gridID: " + pagePointer.gridID);
+  console.log("pagePointer.pageID: " + pagePointer.pageID);
 
-  // var gridHtml = '<div id="leftContainer'+ gridID +'" class="leftContainer">\
-  //                   <div id="gridOne'+ gridID +'" class="gridOne AttrItem">\
-  //                    <div id="'+ pageID +'"></div>\
-  //                   </div>\
-  //                 </div>';
-
-  // // if ($("#gridData").html() != null) {
-  // //   $("#gridData").html("");
-  // // }
+  var gridHtml = "<div id=\"leftContainer"+pagePointer.gridID+"\" class=\"leftContainer\">\
+                 <div id=\"gridOne"+pagePointer.gridID+"\" class=\"gridOne AttrItem\"\
+                 <div id=\""+pagePointer.pageID+"\"></div></div></div>" 
+  pagePointer.gridData.append(gridHtml);
 
   // $("#gridData").append(gridHtml);
-
   // console.log($("#gridData").html());
 
-  $('#gridOne' + gridID).kendoGrid({
+  $('#gridOne' + pagePointer.gridID).kendoGrid({
     scrollable: false,
     resizable: true,
     toolbar:  templateModel(gridOnedata),
