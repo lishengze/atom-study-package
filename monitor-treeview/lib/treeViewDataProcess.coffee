@@ -22,7 +22,7 @@ beginReceiveData = (@TreeviewList, @menu)->
     target: treeViewNode
     filter: '.k-in'
     select: treeSelect
-  window.IsRspQryOidRelationTopicDone = true;
+  
   reqMonitorObjectTopicData = new userApiStruct.CShfeFtdcReqQryMonitorObjectField()
   ReqQryMonitorObjectTopicField = {}
   ReqQryMonitorObjectTopicField.reqObject = reqMonitorObjectTopicData
@@ -508,8 +508,8 @@ onSelect = (e) ->
       rspData.push data.pRspQryOidRelation
       if data.bIsLast == true
         # userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
-        pageId = getObjectID(data.pRspQryOidRelation.ObjectID)
-        userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'pageId':pageId}
+        gridID = getObjectID(data.pRspQryOidRelation.ObjectID)
+        userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'gridID':gridID}
         rspData = []
 
   if 'items' of dataItem == false or dataItem.items.length == 0

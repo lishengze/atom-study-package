@@ -24,6 +24,8 @@ module.exports =
   activate: (state) ->
     @subscriptions = new CompositeDisposable
     window.index = 0
+    window.registerRtnObjectAttrTopic   = false;
+    window.IsRspQryOidRelationTopicDone = false;
 
     atom.workspace.addOpener (filePath) ->
       originalPageId = filePath.substring(("atom://gridViewDemo").length)
@@ -31,9 +33,9 @@ module.exports =
       # console.log originalPageId
 
       if true == window.isPageID
-        creatGridDemo({uri: filePath, gridID : transPageId, pageId: originalPageId})
+        creatGridDemo({uri: filePath, gridID : transPageId, pageID: originalPageId})
       else
-        creatGridDemo({uri: filePath, gridID : ++window.index, pageId: originalPageId})
+        creatGridDemo({uri: filePath, gridID : ++window.index, pageID: originalPageId})
 
   deactivate: ->
     @subscriptions?.dispose()

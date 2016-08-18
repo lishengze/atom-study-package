@@ -7,14 +7,19 @@ var templateModel = kendo.template("<strong style = 'color:indianred'>#: title #
 
 function setup(gridID, pageID) {
   window.configData = getConfigData();
-  registerRspQryOidRelationTopicDone();
+
+  registerRspQryOidRelationTopicDone();  
+
+  registerRtnObjectAttrTopic();
+
   initializeGrid(gridID, pageID);
 }
 
+// 注册grid回调函数。数据接收完成后，进行页面的数据源设置。只注册一次。
 function registerRspQryOidRelationTopicDone() {
-  if (true === window.IsRspQryOidRelationTopicDone) {
+  if (false === window.IsRspQryOidRelationTopicDone) {
     userApi.emitter.on('RspQryOidRelationTopicDone', function(gridRspData){
-      console.log (gridRspData);
+      // console.log (gridRspData);
       var indexDataTmp = [];
       var tmpItem = {};
       var rspData = gridRspData.rspData;
@@ -29,9 +34,9 @@ function registerRspQryOidRelationTopicDone() {
           console.log(rspData[tmpindex].HoldObjectID);
         }
       }
-      console.log (indexDataTmp);
+      // console.log (indexDataTmp);
       if (true === window.isPageID) {
-        var gridNodeId = '#gridOne' + gridRspData.pageId;
+        var gridNodeId = '#gridOne' + gridRspData.gridID;
       } else {
         var gridNodeId = '#gridOne' + window.index;
       }
@@ -44,8 +49,15 @@ function registerRspQryOidRelationTopicDone() {
       var grid = $(gridNodeId).data("kendoGrid");
       var dataSource = new kendo.data.DataSource({data:indexDataTmp});
       grid.setDataSource(dataSource);
+
+      // console.log($("#gridData").html());
+      // console.log($(gridNodeId).html());
+      // console.log($(gridNodeId).parent().html());
+
+      console.log('$(gridNodeId).parent().parent().parent().html()');
+      console.log($(gridNodeId).parent().parent().parent().html());
     });
-    window.IsRspQryOidRelationTopicDone = false;
+    window.IsRspQryOidRelationTopicDone = true;
   }
 }
 
@@ -53,13 +65,19 @@ function initializeGrid(gridID, pageID) {
   console.log("gridID: " + gridID);
   console.log("pageID: " + pageID);
 
-  var gridHtml = '<div id="leftContainer'+ gridID +'" class="leftContainer">\
-                    <div id="gridOne'+ gridID +'" class="gridOne AttrItem">\
-                     <div id="'+ pageID +'"></div>\
-                    </div>\
-                  </div>';
-  $("#gridData").append(gridHtml);
-  console.log($("#gridData").html());
+  // var gridHtml = '<div id="leftContainer'+ gridID +'" class="leftContainer">\
+  //                   <div id="gridOne'+ gridID +'" class="gridOne AttrItem">\
+  //                    <div id="'+ pageID +'"></div>\
+  //                   </div>\
+  //                 </div>';
+
+  // // if ($("#gridData").html() != null) {
+  // //   $("#gridData").html("");
+  // // }
+
+  // $("#gridData").append(gridHtml);
+
+  // console.log($("#gridData").html());
 
   $('#gridOne' + gridID).kendoGrid({
     scrollable: false,
@@ -75,6 +93,8 @@ function initializeGrid(gridID, pageID) {
     selectable: "multiple cell",
     sortable: true
   });
+
+  // console.log($("#gridData").html());
 }
 
 function getConfigData() {
@@ -120,7 +140,6 @@ function onChange() {
   console.log ('ObjectID: ' + objectID);
   console.log ('HoldObjectID: ' + HoldObjectID);
 
-  reqQryObjectAttrFunc(objectID, HoldObjectID);
   reqQrySubscriberFunc(objectID, HoldObjectID);
 }
 
@@ -144,8 +163,26 @@ function reqQryObjectAttrFunc(objectID, attrType) {
   userApi.emitter.emit(EVENTS.ReqQryObjectAttrTopic, reqQryObjectAttrField);
 }
 
-function registerRtnObjectAttrTopic(eventName) {
-  userApi.emitter.on(eventName, function(data){
+/*
+注册实时回调监听函数，只注册一次。
+回调数据中的ObjectID，AttrType标记不同的请求。
+在接受到数据后，以ObjectID+AttrType为名将数据发送到对应请求注册的监听接口中。
+*/
+function registerRtnObjectAttrTopic() {
+  if (window.registerRtnObjectAttrTopic === false) {
+    userApi.emitter.on(EVENTS.RtnObjectAttrTopic, function(data){
+      // console.log(data);
+      var curRtnMessageName = data.ObjectID + '.' + data.AttrType;
+      userApi.emitter.emit(curRtnMessageName, data);
+    });
+    window.registerRtnObjectAttrTopic = true;
+  }   
+}
+
+// 根据不同的订阅ID,注册对应的实施监听回调函数。
+function registerRtnObjectAttrObjectID(eventName) {
+  userApi.emitter.on (eventName, function(data){
+    console.log(eventName);
     console.log(data);
   });
 }
@@ -159,9 +196,9 @@ function reqQrySubscriberFunc(objectID, attrType){
   var reqQrySubscriberField = {}
   reqQrySubscriberField.reqObject  = reqQrySubscriberData;
   reqQrySubscriberField.RequestId  = ++window.ReqQrySubscriberTopicRequestID;
-  reqQrySubscriberField.rtnMessage = EVENTS.RtnObjectAttrTopic;
+  reqQrySubscriberField.rtnMessage = reqQrySubscriberData.ObjectID;
 
-  registerRtnObjectAttrTopic(reqQrySubscriberField.rtnMessage);
+  registerRtnObjectAttrObjectID(reqQrySubscriberField.rtnMessage);
 
   userApi.emitter.emit(EVENTS.ReqQrySubscriberTopic, reqQrySubscriberField);
 }
