@@ -13,6 +13,7 @@ class Demo extends ScrollView
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'BinaryScreen', '二分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id:'ThreeSplitScreen', '三分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'FourSplitScreen', '四分屏'
+      @div outlet: 'testAppend'
       @div id : 'gridData', outlet:'gridData', =>
         # @div id : 'leftContainer'+ params.gridID, class: 'leftContainer', =>
         #   @div id: 'gridOne'  + params.gridID, class: 'gridOne AttrItem', =>
@@ -32,38 +33,27 @@ class Demo extends ScrollView
 
     setup(@gridID, @pageID)
 
-
-
-
   detached: ->
 
   initialize: ({@uri,@gridID,@pageID}) ->
-    console.log '@uri:    ' + @uri
-    console.log '@gridID: ' + @gridID
-    console.log '@pageID: ' + @pageID
-    tmpGridID = @gridID;
-    tmpPageID = @pageID
+    # console.log '@uri:    ' + @uri
+    # console.log '@gridID: ' + @gridID
+    # console.log '@pageID: ' + @pageID
 
-    # gridHtml = "<div id=\"leftContainer+"+ @gridID +"\" class=\"leftContainer\">\
-    #                 <div id=\"gridOne+"+ @gridID +"\" class=\"gridOne AttrItem\">\
-    #                  <div id=\"A.a\"></div>\
-    #                 </div>\
-    #               </div>";
+    # testHtml = "<div>#{@gridID}</div>"
+    # testHtml = "<div id=\"HaHaHaHa#{@gridID}\">#{@gridID}</div>"
+    # @testAppend.append testHtml
 
-    if @gridID === "Aa"
-        @gridHtml = "<div id=\"leftContainerAa\" class=\"leftContainer\">\
-                        <div id=\"gridOneAa\" class=\"gridOne AttrItem\">\
-                          <div id=\"A.a\"></div>\
-                        </div>\
-                      </div>";
-    else 
-        @gridHtml = "<div id=\"leftContainerBb\" class=\"leftContainer\">\
-                      <div id=\"gridOneBb\" class=\"gridOne AttrItem\">\
-                        <div id=\"A.a\"></div>\
-                      </div>\
-                    </div>";
+    gridHtml = "<div id=\"leftContainer#{@gridID}\" class=\"leftContainer\">
+                <div id=\"gridOne#{@gridID}\" class=\"gridOne AttrItem\">
+                <div id=\"#{@pageID}\"></div></div></div>"
 
-    @gridData.append(@gridHtml);
+    # gridHtml = "<div id=\"leftContainer"+@gridID+"\" class=\"leftContainer\">
+    #             <div id=\"gridOne"+@gridID+"\" class=\"gridOne AttrItem\">
+    #             <div id=\""+@pageID+"\"></div></div></div>"          
+
+    # console.log gridHtml
+    @gridData.append gridHtml 
 
   serialize: ->
     deserializer: @constructor.name
