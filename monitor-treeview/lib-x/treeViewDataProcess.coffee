@@ -1,14 +1,64 @@
-# fs = require 'fs'
-# path = require 'path'
-# fileName = path.join __dirname, './fs-test.txt'
-# # fileData = "Hello Pid: " + process.pid + '\n';
-# fileData = "Hello TreeView \n"
+ ##treeview 节点数据转化处理模块。
+
+# var setup = function () {
+# var html = '<div>\
+#        <div><button class="k-button" id="collapseAllNodes">Collapse</button>\
+#         <button class="k-button" id="addUpdate">增 量 更 新</button></div>\
+#        <label style = "font-weight:bold" for=\'search-term\'>Search : </label>\
+#        <input type=text id = \'search-term\' placeholder = \'I am looking for...\'/></div>\
+#        <ul id="menu">\
+#        <li id="rename"><i class="fa fa-coffee"></i> Rename</li>\
+#   <li id="delete"><i class="fa fa-times"></i>  Delete</li>\
+#   </ul>'
+# $('.filterText').append(html)
+# $('.MonitorObjectListPanel').css('min-width', '200px')// 设置treeview窗口的最小宽度
+# var divHeight = 90
+# var windowHeight = window.innerHeight
+# var actHeight = windowHeight - divHeight - 40
+# $('#MonitorObjectListPanel-Treeview').height(actHeight)// 设置treeview窗口的高度
+# $(window).resize(function() {// 根据窗口大小自动调整treeview窗口高度
+#  //process here
+#   windowHeight = window.innerHeight
+#   divHeight = $('#BeforeTreeview').height()
+#   var resizeHeight = windowHeight - divHeight - 40
+#   $( '#MonitorObjectListPanel-Treeview').height(resizeHeight)// 设置treeview窗口的高度
+# });
+# }
+#///////////////////////////////////////////////////////////这些代码为了实现横向滚动条位置跟随treeview高度变化////////////////////////
+# function adjustSize() {
+#   var windowHeight = window.innerHeight
+#   var treeviewHeight = $('#MonitorObjectListPanel-Treeview .k-treeview-lines').height() // 获取treeview的实际高度
+# //  console.log('treeviewHeight : ' + treeviewHeight)
+# //  console.log($('.k-treeview-lines'))
+#    divHeight = $('#BeforeTreeview').height()
+#   // console.log(divHeight )
+#   var resizeHeight = windowHeight > treeviewHeight ? treeviewHeight : windowHeight - divHeight -20
+#   $('.tree-view-scroller').height(resizeHeight)// 设置treeview窗口的高度
+# }
+# $(window).resize(function() {
+#    adjustSize()
+# })
+# $('#MonitorObjectListPanel-Treeview .k-treeview-lines').resize(function() {// 根据窗口大小自动调整treeview窗口高度
+#  //process here
+#  adjustSize()
+#  // console.log('resize')
+#   // var windowHeight = window.innerHeight
+#   // var treeviewHeight = $('#MonitorObjectListPanel-Treeview .k-treeview-lines').height()
+#   // console.log('treeviewHeight : ' + treeviewHeight)
+#   // console.log($('.k-treeview-lines'))
+#   // // divHeight = $('#BeforeTreeview').height()
+#   // // console.log(divHeight )
+#   // var resizeHeight = windowHeight - divHeight -20
+#   // $('.tree-view-scroller').height(resizeHeight)// 设置treeview窗口的高度
+# });
+#///////////////////////////////////////////////////////////以上代码///////////////////////
+
 
 treeview = null; #全局 treeview
 beginReceiveData = (@TreeviewList, @menu)->
   treeViewNode = @TreeviewList
   treeview = $(treeViewNode).kendoTreeView(
-    template: '<i class=\'#= item.FrontAwesomeClass #\' id=\'#=item.id#\'></i>#=  item.text #'
+    template: '<i class=\'#= item.FrontAwesomeClass #\'></i>#=  item.text #'
     dragAndDrop: true
     animation: false
     loadOnDemand: false
@@ -22,37 +72,61 @@ beginReceiveData = (@TreeviewList, @menu)->
     target: treeViewNode
     filter: '.k-in'
     select: treeSelect
-  window.IsRspQryOidRelationTopicDone = true;
+
   reqMonitorObjectTopicData = new userApiStruct.CShfeFtdcReqQryMonitorObjectField()
   ReqQryMonitorObjectTopicField = {}
   ReqQryMonitorObjectTopicField.reqObject = reqMonitorObjectTopicData
   ReqQryMonitorObjectTopicField.RequestId = ++ window.ReqQryMonitorObjectTopicRequestID
   ReqQryMonitorObjectTopicField.rspMessage =  EVENTS.RspQryMonitorObjectTopic + ReqQryMonitorObjectTopicField.RequestId
 
+  netMonitorAttrerScope               = new userApiStruct.CShfeFtdcReqQryNetMonitorAttrScopeField()
+  netMonitorAttrerScope.OperationType = 0;
+  netMonitorAttrerScope.ID            = 0;
+  netMonitorAttrerScope.CName         = " ";
+  netMonitorAttrerScope.EName         = " ";
+  netMonitorAttrerScope.Comments      = " ";
+
+  netMonitorAttrerScopeField4            = {}
+  netMonitorAttrerScopeField4.reqObject  = netMonitorAttrerScope
+  netMonitorAttrerScopeField4.RequestId  = ++window.ReqQryNetMonitorAttrScopeTopicRequestID;
+  netMonitorAttrerScopeField4.rspMessage = EVENTS.RspQryNetMonitorAttrScopeTopic + netMonitorAttrerScopeField4.RequestId
+
   userApi.emitter.on EVENTS.RspQyrUserLoginSucceed, (data) =>
-    console.log 'TreeView: ' + EVENTS.RspQyrUserLoginSucceed
+    console.log 'Login in'
     userApi.emitter.emit EVENTS.ReqQryMonitorObjectTopic, ReqQryMonitorObjectTopicField
 
+    userApi.emitter.emit EVENTS.ReqQryNetMonitorAttrScopeTopic, netMonitorAttrerScopeField4
+
+    userApi.emitter.on netMonitorAttrerScopeField4.rspMessage, (data) =>
+      console.log netMonitorAttrerScopeField4.rspMessage
+      console.log data
+
   treeviewData1 = []  # 后台传递的原始数据
-
   userApi.emitter.on ReqQryMonitorObjectTopicField.rspMessage, (data) ->
-
-    if data.hasOwnProperty 'pRspQryMonitorObject'
-      treeviewData1.push data.pRspQryMonitorObject
-      if data.bIsLast == true
-        # console.log 'Original TreeView Data: '
-        # console.log treeviewData1
-        treeviewData = arrayConverseToJson(treeviewData1)
-        # console.log 'Json TreeView Data: '
-        # console.log treeviewData
-
-        sortData treeviewData  # 对treeview节点按名字进行排序
-        # console.log 'Sorted TreeView Data: '
-        # console.log treeviewData
-
-        treeview.setDataSource new (kendo.data.HierarchicalDataSource)(data: treeviewData)
-        return
-
+    treeviewData1.push data.pRspQryMonitorObject
+    if data.bIsLast == true #所有数据传输
+      treeviewData = arrayConverseToJson(treeviewData1)
+      sortData treeviewData
+      # 对treeview节点按名字进行排序
+      treeview.setDataSource new (kendo.data.HierarchicalDataSource)(data: treeviewData)
+    #        var dataSource=treeview.dataSource
+    #
+    #        dataSource.add({
+    #            "text": "testData",
+    #            curID: "test"
+    #        })
+    # //////用于测试节点图标状态改变
+    # var time = 0
+    # var dataItem = treeview.dataSource.data()[0] // 获取第一组数据的根节点
+    # setInterval(function () {
+    #     time ++
+    #     if (time%2 === 0) {
+    #       dataItem.set("FrontAwesomeClass", WarningType(1))
+    #     } else {
+    #       dataItem.set("FrontAwesomeClass", WarningType(0))
+    #     }
+    # },2000)
+    return
   arrayLeft = 0
   # 所检索到的text剩余个数
   inputValue = ''
@@ -150,7 +224,6 @@ beginReceiveData = (@TreeviewList, @menu)->
         arrayLeft = searchArray.length
     else
     return
-
   $('#collapseAllNodes').click ->
     treeview.collapse '.k-item'
     return
@@ -324,12 +397,12 @@ osLeafNodeData = [
     items: null
   }
 ]
-
 # rst 在当前rst数组中查找
 # idArray split之后的数组
 # idx 当前在idArray中查找的位置
-# tracePath 在整个finalResult中对应的路径
-# searchNode，在rst数值中查找由idArray和idx确定的finalResult的索引路径，结果输出到tracePath中。
+# tracePath 在整个finalRst中对应的路径
+# searchNode，在rst数值中查找由idArray和idx确定的finalRst的索引路径，结果输出到tracePath中。
+
 searchNode = (idArray, idx, rst, tracePath) ->
   if idx == idArray.length + 1
     return true
@@ -352,25 +425,14 @@ searchNode = (idArray, idx, rst, tracePath) ->
     i++
   false
 
-arrayConverseToJson = (data) ->
-  finalResult = []
-  dataLenth = data.length
-  i = 0
-  while i < dataLenth
-    # 遍历整个data
-    process data[i], finalResult
-    i++
-
-  finalResult
-
-process = (data, finalResult) ->
+process = (data, finalRst) ->
   idArray = data.ObjectID.split('.')
   idArrayLength = idArray.length
   tracePath = []
   idx = 0
-  searchResult = searchNode(idArray, idx, finalResult, tracePath)
+  searchResult = searchNode(idArray, idx, finalRst, tracePath)
   distance = Math.abs(idArrayLength - (tracePath.length))
-  itemsArray = finalResult
+  itemsArray = finalRst
   if searchResult == false
     i = 0
     while i < tracePath.length
@@ -379,11 +441,10 @@ process = (data, finalResult) ->
     itemsArray.push
       'text': if distance > 1 then 'exception!' else data.ObjectName
       'curID': idArray[tracePath.length]
-      'id': if distance > 1 then 'exception!' else data.ObjectID
       'FrontAwesomeClass': WarningType(data.WarningActive)
       'items': if idArray[idArrayLength - 2] == 'os' then osLeafNodeData else []
     if distance > 1
-      process data, finalResult
+      process data, finalRst
   else
     # searchResult=true表示如果有相同的ID节点，怎么处理
     i = 0
@@ -395,9 +456,18 @@ process = (data, finalResult) ->
       curID: idArray[tracePath.length]
       items: null
     if distance > 1
-      process data, finalResult
+      process data, finalRst
   return
 
+arrayConverseToJson = (data) ->
+  finalRst = []
+  dataLenth = data.length
+  i = 0
+  while i < dataLenth
+    # 遍历整个data
+    process data[i], finalRst
+    i++
+  finalRst
 treeSelect = (e) ->
   # event data
   # e.item : the selected item
@@ -446,6 +516,7 @@ renameNode = (nodeJquery) ->
     return
   return
 
+
 byName = (name) ->
   (o, p) ->
     a = undefined
@@ -480,40 +551,41 @@ sortData = (data) ->
     i++
   return
 
+# module.exports.setup = setup
+
 creatGridDemo = (state) ->
   console.log 'creatGridDemo'
 
   Demo = require('./gridDemoView.coffee')
   p = new Demo(state)
   # p.getTitle()
-
+# var treeview = $('#MonitorObjectListPanel-Treeview').kendoTreeView({
+#   template: "<i class='#= item.FrontAwesomeClass #'></i>#=  item.text #", // 格式很重要~
+#   dragAndDrop: true,
+#   animation: false,
+#   loadOnDemand: false, // 默认为true
+#   select: onSelect,
+#   change: function (e) {}
+# }).data('kendoTreeView')
 onSelect = (e) ->
   dataItem = treeview.dataItem(e.node)
-  console.log dataItem.id
-  reqQryOidRelationData = new userApiStruct.CShfeFtdcReqQryOidRelationField()
-  reqQryOidRelationData.ObjectID = dataItem.id
-  reqQryOidRelationField = {}
-  reqQryOidRelationField.reqObject  = reqQryOidRelationData
-  reqQryOidRelationField.RequestId  = ++window.ReqQryOidRelationTopicRequestID
-  reqQryOidRelationField.rspMessage = EVENTS.RspQryOidRelationTopic + reqQryOidRelationField.RequestId
-  window.reqQryOidRelationField = reqQryOidRelationField;
-
-  rspData = []
-  userApi.emitter.emit EVENTS.ReqQryOidRelationTopic, reqQryOidRelationField
-
-  userApi.emitter.on reqQryOidRelationField.rspMessage, (data)->
-    # console.log reqQryOidRelationField.rspMessage
-    # console.log data
-    if data.hasOwnProperty 'pRspQryOidRelation'
-      rspData.push data.pRspQryOidRelation
-      if data.bIsLast == true
-        userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
-        rspData = []
-
+  # console.log('items' in dataItem)
+  # console.log(dataItem.hasOwnProperty(length))
   if 'items' of dataItem == false or dataItem.items.length == 0
-    uri = 'atom://gridViewDemo' + dataItem.id
+    # 判断是否叶子节点
+    # 打开url
+    # i ++
+    uri = 'atom://gridViewDemo' + dataItem.text
+    # uri = 'atom://gridViewDemo' + dataItem.text
+    # console.log 'open uri'
+    # atom.workspace.addOpener (uri) ->
+    #   console.log 'addopen!!!!!!'
+    #   creatGridDemo uri
     atom.workspace.open uri
-
+    # console.log 'hha'
   return
 
 module.exports.beginReceiveData = beginReceiveData
+
+# ---
+# generated by js2coffee 2.2.0

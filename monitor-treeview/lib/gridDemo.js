@@ -1,19 +1,27 @@
 _ = require('underscore-plus');
 
 var gridOnedata = {title : '属性列表' }
+var containerLeft = 0;
+var screenLeft = 587;
+var screenWidth = $('.baobiaoContainer').width() - containerLeft - 20
+var borderWidth = 6
+var containerHeight = window.innerHeight - 50
+var toolbarHeight = 20.5
+var highchartsHeight =containerHeight - toolbarHeight//
+
 var templateModel = kendo.template("<strong style = 'color:indianred'>#: title #  </strong>\
                   <i  class = 'gridMax fa fa-clone'></i>\
                   <i  class = ' gridClose fa fa-times'></i>")
 
-function setup(gridID, pageID, pagePointer) {
+function setup(gridViewPointer) {
 
   window.configData = getConfigData();
 
-  registerRspQryOidRelationTopicDone();  
+  registerGridDataReceiveFunc(gridViewPointer);
 
   registerRtnObjectAttrTopic();
 
-  initializeGrid(gridID, pageID, pagePointer);
+  initializeGrid(gridViewPointer);
 }
 
 // 注册grid回调函数。数据接收完成后，进行页面的数据源设置。只注册一次。
@@ -35,7 +43,9 @@ function registerRspQryOidRelationTopicDone() {
           console.log(rspData[tmpindex].HoldObjectID);
         }
       }
-      // console.log (indexDataTmp);
+
+      console.log ("indexDataTmp: ");
+      console.log (indexDataTmp);
       if (true === window.isPageID) {
         var gridNodeId = '#gridOne' + gridRspData.gridID;
       } else {
@@ -52,24 +62,62 @@ function registerRspQryOidRelationTopicDone() {
 
       // console.log('$(gridNodeId).parent().parent().parent().html()');
       // console.log($(gridNodeId).parent().parent().parent().html());
+
     });
     window.IsRspQryOidRelationTopicDone = true;
   }
 }
 
-function initializeGrid(gridID, pageID, pagePointer) {
-  console.log("pagePointer.gridID: " + pagePointer.gridID);
-  console.log("pagePointer.pageID: " + pagePointer.pageID);
+function registerGridDataReceiveFunc(Pointer) {
+  return (function(gridViewPointer){
+      var gridDataEventName = gridViewPointer.gridID;
+      console.log("gridDataEventName: " + gridDataEventName);
 
-  var gridHtml = "<div id=\"leftContainer"+pagePointer.gridID+"\" class=\"leftContainer\">\
-                 <div id=\"gridOne"+pagePointer.gridID+"\" class=\"gridOne AttrItem\"\
-                 <div id=\""+pagePointer.pageID+"\"></div></div></div>" 
-  pagePointer.gridData.append(gridHtml);
+      userApi.emitter.on(gridDataEventName, function(gridRspData){
+          var transGridData = transformGridData(gridRspData.rspData);
+          var dataSource = new kendo.data.DataSource({data:transGridData});
 
-  // $("#gridData").append(gridHtml);
-  // console.log($("#gridData").html());
+          if (true === window.isPageID) {
+            var gridNodeId = 'gridOne' + gridRspData.gridID;
+          } else {
+            var gridNodeId = 'gridOne' + window.index;
+          }
 
-  $('#gridOne' + pagePointer.gridID).kendoGrid({
+          // var gridSelector1 = $('#'+gridNodeId);
+          // var grid1 = gridSelector1.data("kendoGrid");
+          // grid1.setDataSource(dataSource);
+
+          gridNodeId = 'gridOne'
+          var gridSelector2 = $(gridViewPointer.gridData.find('#'+gridNodeId));   
+          var grid2 = gridSelector2.data("kendoGrid");
+          grid2.setDataSource(dataSource);
+
+          // console.log (gridSelector1.html());
+          // console.log (grid1);
+          // console.log (gridSelector2.html());
+          // console.log (grid2);
+                     
+      })
+  })(Pointer);
+}
+
+function initializeGrid(gridViewPointer) {
+  // var gridHtml = "<div id=\"leftContainer"+gridViewPointer.gridID+"\" outlet=\"leftContainer"+gridViewPointer.gridID+"\" class=\"leftContainer\">\
+  //                <div id=\"gridOne"+gridViewPointer.gridID+"\" outlet=\"gridOne"+gridViewPointer.gridID+"\" class=\"gridOne AttrItem\">\
+  //                <div id=\""+gridViewPointer.pageID+"\" outlet=\""+gridViewPointer.pageID+"\"></div></div></div>" 
+
+  var gridHtml = "<div id=\"leftContainer\"  class=\"leftContainer \">\
+                 <div id=\"gridOne\" class=\"gridOne AttrItem\">\
+                 <div id=\""+gridViewPointer.pageID+"\"></div></div></div>"  
+
+  gridViewPointer.gridData.append(gridHtml);
+
+  var gridSelector1 = $('#gridOne' + gridViewPointer.gridID);
+  var gridSelector2 = $(gridViewPointer.gridData.find('#gridOne'));
+  
+  var gridSelector  = gridSelector2;
+
+  gridSelector.kendoGrid({
     scrollable: false,
     resizable: true,
     toolbar:  templateModel(gridOnedata),
@@ -79,12 +127,140 @@ function initializeGrid(gridID, pageID, pagePointer) {
      field: '指标ID',
     }
     ],
-    change: onChange,
     selectable: "multiple cell",
     sortable: true
   });
 
-  // console.log($("#gridData").html());
+  registerGridItemDblClickFunc(gridViewPointer);
+  // console.log(gridSelector.html());
+
+  containerLeft = $('.gridOne').width() + 15;
+    
+}
+
+function registerGridItemDblClickFunc(Pointer) {
+  
+  return (function(gridViewPointer){
+    var gridItemSelector = $(gridViewPointer.gridData.find('.gridOne, td'))
+    // console.log("gridViewPointer.pageID: " + gridViewPointer.pageID);
+    // console.log("gridViewPointer.gridID: " + gridViewPointer.gridID);
+    gridItemSelector.dblclick(function(e) {
+      var selectedRows = $(e.target);
+ 
+      var objectID = gridViewPointer.pageID;
+      var HoldObjectID = selectedRows[0].textContent;
+
+      console.log ('ObjectID: ' + objectID);
+      console.log ('HoldObjectID: ' + HoldObjectID);
+
+      initializeChart(gridViewPointer, HoldObjectID);
+
+      reqQrySubscriberFunc(objectID, HoldObjectID);     
+
+    });
+
+  })(Pointer);
+}
+
+function initializeChart(gridViewPointer, chartID) {
+  var gridHtml = "<div id=\"" + chartID + "Model\" class=\"AttrItem\">\
+                  <div id=\"" + chartID + "Toolbar\"></div>\
+                  <div id=\"" + chartID + "\"></div></div>"  
+
+  gridViewPointer.chartData.append(gridHtml);
+  console.log (gridViewPointer.chartData.html());
+
+  var curChartSelector = $(gridViewPointer.chartData.find('#'+chartID));
+  var curChartModelSelector = $(gridViewPointer.chartData.find('#'+chartID+'Model'));
+  var curChartToolbarSelector = $(gridViewPointer.chartData.find('#'+chartID+'Toolbar'));
+
+  var initialData = initialDataGenerator()
+  var seriesData = []
+  for (var k = 0; k < 1; k++) {
+    seriesData.push({
+      name: 'Random data' + k,
+      data: initialData,
+      animation: false
+    })
+  }
+
+  console.log ('containerLeft: ' + containerLeft);
+  curChartModelSelector.css({'left'   : containerLeft+40, 'top' : 0, 
+                        'width'  : 500, 
+                        'height' : 500               
+                        });
+
+  var highchartsToolbar = {title : chartID}
+  // curChartToolbarSelector.html(templateModel(highchartsToolbar));
+
+  curChartSelector.highcharts('StockChart', {
+    chart: {
+      animation: false,
+      marginTop: 30
+      },
+      height : window.innerHeight - 50,
+      reflow: true,
+      xAxis: {
+        enabled: true
+      },
+      rangeSelector: {
+          enabled: false
+      },
+      yAxis: {
+        max: 101, // 控制Y轴最大值，设成101是为了能显示100的grid
+        min: 0, // 设定y轴最小值
+        minTickInterval: 0,
+        tickAmount: 6, // 控制y轴标线的个数
+        tickPixelInterval: 10, // 控制标线之间的中间间隔。
+        title: {
+          text: chartID
+        },
+        allowDecimals: false, // 是否显示小数。
+        opposite: false
+      },
+      scrollbar: {
+        enabled: false
+      },
+      exporting: {
+        enabled :false
+      },
+      credits: {
+        enabled: false // 禁用版权信息
+      },
+      series: seriesData
+      })
+
+  var chart = curChartSelector.highcharts()
+  chart.setSize(curChartModelSelector.width(), curChartModelSelector.height() - toolbarHeight, false);
+
+  var updateTime = 1000;
+  setChartData(gridViewPointer, chart, chartID, updateTime);
+    // console.log (gridViewPointer.chartData.html());
+}
+
+function setChartData(gridViewPointer, chart, chartID, updateTime) {
+  var rtnDataName = gridViewPointer.pageID+'.'+chartID;
+  var chartData = [];
+  var dataNumb = 0;
+
+  userApi.emitter.on (rtnDataName, function(data){
+    // console.log(eventName);
+    console.log(data);
+
+    chartData.push(data);
+    dataNumb++;
+  });
+
+  var series = chart.series[0];
+  
+  setInterval(function() {
+      // var x = (new Date()).getTime(),
+      // // current time         
+      // y = Math.random();
+      // series.addPoint([x, y + 1], true, true);
+      console.log (dataNumb);
+  },
+  updateTime);
 }
 
 function getConfigData() {
@@ -122,15 +298,50 @@ function getConfigData() {
     return transAttrData;
 }
 
+function transformGridData(originalData) {
+    var transData = [];
+    var tmpItem = {};
+    for (var tmpindex = 0; tmpindex < originalData.length; ++tmpindex) {
+      if (configData[originalData[tmpindex].HoldObjectID] !== undefined) {
+        tmpItem = {
+          '指标名称': configData[originalData[tmpindex].HoldObjectID].comment,
+          '指标ID' : originalData[tmpindex].HoldObjectID
+        }
+        transData.push(tmpItem);
+      } else {
+        console.log(originalData[tmpindex].HoldObjectID);
+      }
+    }
+
+    return transData;
+}
+
+function gridChangeFunc(Pointer) {
+  return (function(gridViewPointer){
+    var selectedRows = this.select();
+    var objectID = gridViewPointer.pageID;
+    var HoldObjectID = $(selectedRows).text();
+
+    console.log ('ObjectID: ' + objectID);
+    console.log ('HoldObjectID: ' + HoldObjectID);
+
+    reqQrySubscriberFunc(objectID, HoldObjectID);
+  })(Pointer);
+}
+
 function onChange() {
   var selectedRows = this.select();
-  var objectID = this.element[0].childNodes[1].id;
+  var objectID = this.element[0].childNodes[2].id;
   var HoldObjectID = $(selectedRows).text();
 
+  // console.log (gridViewPointer.pageID);
+  // console.log (this)
   console.log ('ObjectID: ' + objectID);
   console.log ('HoldObjectID: ' + HoldObjectID);
 
   reqQrySubscriberFunc(objectID, HoldObjectID);
+
+  // initializeChart()
 }
 
 function registerRspQryObjectAttrTopic(eventName) {
@@ -171,10 +382,16 @@ function registerRtnObjectAttrTopic() {
 
 // 根据不同的订阅ID,注册对应的实施监听回调函数。
 function registerRtnObjectAttrObjectID(eventName) {
+  var testNumber = 0;
   userApi.emitter.on (eventName, function(data){
-    console.log(eventName);
+    // console.log ('testNumber: ' + testNumber++);
+    // console.log(eventName);
     console.log(data);
   });
+
+  // setInterval(function () {
+  //   //  console.log ('+++++ testNumber: ' + testNumber++);
+  // }, 5);
 }
 
 function reqQrySubscriberFunc(objectID, attrType){
@@ -188,9 +405,107 @@ function reqQrySubscriberFunc(objectID, attrType){
   reqQrySubscriberField.RequestId  = ++window.ReqQrySubscriberTopicRequestID;
   reqQrySubscriberField.rtnMessage = reqQrySubscriberData.ObjectID;
 
-  registerRtnObjectAttrObjectID(reqQrySubscriberField.rtnMessage);
+  // registerRtnObjectAttrObjectID(reqQrySubscriberField.rtnMessage);
 
   userApi.emitter.emit(EVENTS.ReqQrySubscriberTopic, reqQrySubscriberField);
 }
 
+function initialDataGenerator() { 
+  var Mydata = []
+  var time = (new Date()).getTime()
+  var i
+  for (i = -10; i <= 0; i += 1) {
+    Mydata.push([
+      time + i * 1000,
+      Math.ceil(Math.random() * 100)
+    ])
+  }
+  return Mydata
+}
+
 module.exports.setup = setup
+
+function testRegisterGridDataReceiveFunc(Pointer) {
+  // console.log("Pointer.gridID: " + Pointer.gridID);
+  // console.log("Pointer.pageID: " + Pointer.pageID);
+  var gridDataEventName = Pointer.gridID;
+
+  console.log("gridDataEventName: " + gridDataEventName);
+
+  userApi.emitter.on(gridDataEventName, function(data){
+      // console.log("gridViewPointer.gridID: " + gridViewPointer.gridID);
+      // console.log("gridViewPointer.pageID: " + gridViewPointer.pageID);
+      console.log(data);
+  })  
+  // return (function(gridViewPointer, eventName){
+  //   return function() {
+  //       userApi.emitter.on(eventName, function(data){
+  //           console.log("gridViewPointer.gridID: " + gridViewPointer.gridID);
+  //           console.log("gridViewPointer.pageID: " + gridViewPointer.pageID);
+  //           console.log(data);
+  //       })
+  //   }
+  // })(Pointer,gridDataEventName);
+}
+
+function TestRegisterGridDataReceiveFunc(Pointer) {
+  return (function(gridViewPointer){
+      var gridDataEventName = gridViewPointer.gridID;
+      console.log("gridDataEventName: " + gridDataEventName);
+
+      userApi.emitter.on(gridDataEventName, function(gridRspData){
+          // console.log("gridViewPointer.gridID: " + gridViewPointer.gridID);
+          // console.log("gridViewPointer.pageID: " + gridViewPointer.pageID);
+          // console.log(gridRspData);
+
+          var transGridData = transformGridData(gridRspData.rspData);
+
+          // console.log("transGridData: ")
+          // console.log(transGridData)
+
+          if (true === window.isPageID) {
+            var gridNodeId = 'gridOne' + gridRspData.gridID;
+          } else {
+            var gridNodeId = 'gridOne' + window.index;
+          }
+
+          // console.log('$(gridNodeId).parent().parent().parent().html()');
+          // console.log($('#'+gridNodeId).parent().parent().parent().html());
+
+          // console.log('gridViewPointer.gridData.html(): ' + gridViewPointer.gridData.html());
+          // console.log('gridViewPointer.gridData.children().html(): ' + gridViewPointer.gridData.children().html());
+          // console.log('gridViewPointer.gridData.html(): ' + gridViewPointer.gridData.find('#'+gridNodeId).html());
+
+          // console.log('gridViewPointer.gridData.children("#"+gridNodeId): ');
+          // console.log(gridViewPointer.gridData.children("#"+gridNodeId));
+
+          // console.log ('gridViewPointer.gridNodeId.attr("id"): ' + gridViewPointer.gridNodeId.attr('id'));
+
+          var gridSelector1 = $('#'+gridNodeId);
+          var gridSelector2 = $(gridViewPointer.gridData.find('#'+gridNodeId));
+          var gridSelector3 = $('#'+gridNodeId).find('#'+gridNodeId)['prevObject'];
+
+          var grid1 = gridSelector1.data("kendoGrid");
+          var grid2 = gridSelector2.data("kendoGrid");
+          var grid3 = gridSelector3.data("kendoGrid");
+
+          // console.log (gridSelector1.html());
+          // console.log (grid1);
+          // console.log (gridSelector2.html());
+          // console.log (grid2);
+          // console.log (gridSelector3.html());
+          // console.log (grid3);
+
+          var dataSource = new kendo.data.DataSource({data:transGridData});
+          grid2.setDataSource(dataSource);   
+
+          // var testSelector1 = $('#gridData');
+          // var testSelector2 = gridViewPointer.gridData;
+
+          // console.log(testSelector1);
+          // console.log(testSelector1.html());     
+          // console.log(testSelector2);
+          // console.log(testSelector2.html());             
+      })
+  })(Pointer);
+}

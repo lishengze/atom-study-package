@@ -487,7 +487,7 @@ creatGridDemo = (state) ->
   p = new Demo(state)
   # p.getTitle()
 
-onSelect = (e) ->
+onSelect = (e) ->  
   dataItem = treeview.dataItem(e.node)
   console.log dataItem.id
   reqQryOidRelationData = new userApiStruct.CShfeFtdcReqQryOidRelationField()
@@ -509,7 +509,11 @@ onSelect = (e) ->
       if data.bIsLast == true
         # userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
         gridID = getObjectID(data.pRspQryOidRelation.ObjectID)
-        userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'gridID':gridID}
+        gridDataEventName = gridID
+        console.log "gridDataEventName: "+ gridDataEventName
+        # userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'gridID':gridID}
+        userApi.emitter.emit gridDataEventName, {'rspData':rspData, 'gridID':gridID}
+
         rspData = []
 
   if 'items' of dataItem == false or dataItem.items.length == 0

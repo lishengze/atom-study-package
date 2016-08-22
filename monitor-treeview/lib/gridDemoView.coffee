@@ -8,14 +8,16 @@ module.exports =
 class Demo extends ScrollView
   @content : (params) ->
     @div class: 'baobiaoContainer pane-item native-key-bindings timecop', tabindex: -1, =>
-      @div class: 'block',=>
+      @div class: 'block', outlet:'block', =>
         @button  class: 'SplitScreenBtn btn btn-lg', id:'ASplitScreen', '一分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'BinaryScreen', '二分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id:'ThreeSplitScreen', '三分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'FourSplitScreen', '四分屏'
-      @div outlet: 'testAppend'
+      # @div outlet: 'testAppend'
+      # @div id : 'testGridData' + @gridID
       @div id : 'gridData', outlet:'gridData', =>
-        # @div id : 'leftContainer'+ params.gridID, class: 'leftContainer', =>
+      @div id : 'chartData', outlet: 'chartData', =>
+        # @div id : 'leftContainer'+ pa+rams.gridID, class: 'leftContainer', =>
         #   @div id: 'gridOne'  + params.gridID, class: 'gridOne AttrItem', =>
         #     @div id: params.pageID
       # @div id: 'rizhi' + params.index, class: 'rizhi AttrItem'
@@ -31,7 +33,7 @@ class Demo extends ScrollView
   attached: ->
     {setup}=require './gridDemo.js'
 
-    setup(@gridID, @pageID, this)
+    setup(this)    
 
   detached: ->
 
@@ -54,6 +56,9 @@ class Demo extends ScrollView
 
     # console.log gridHtml
     # @gridData.append gridHtml 
+
+    # console.log @block.parent().children().html()
+    # console.log @gridData.html()
 
   serialize: ->
     deserializer: @constructor.name
