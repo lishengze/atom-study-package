@@ -80,6 +80,7 @@ function initializeGrid(gridViewPointer) {
   containerLeft = $('.gridOne').width() + 15;
 
   gridViewPointer.ChartItem = [];
+  gridViewPointer.ChartDataCallTime = [];
     
 }
 
@@ -172,7 +173,7 @@ function initializeChart(gridViewPointer, chartID) {
   var chart = curChartSelector.highcharts();
   // chart.turboThreshold = 40000;
   chart.setSize(curChartModelSelector.width(), curChartModelSelector.height() - toolbarHeight, false);
-  curChartModelSelector.hide();
+  // curChartModelSelector.hide();
   
   var updateTime = 1000;
   setChartData(gridViewPointer, curChartModelSelector, chart, chartID, updateTime);  
@@ -184,9 +185,12 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID, up
   var chartDataY = [];
   var dataNumb = 0;
   var isRealTime = false;
-  var realTimeLine = 3;
-  var isFirstTime = true;
+  var realTimeLine = 1;
+
   var nonRealTimeChartData = [];
+  var isFirstTime = true;
+  gridViewPointer.ChartDataCallTime[rtnDataName] = [];
+
 
   userApi.emitter.on (rtnDataName, function(data){
     // console.log(data);
@@ -196,38 +200,37 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID, up
     // console.log(MinusTime(curTime, data.MonTime));
 
     if (true === isFirstTime) {
-        
-        isFirstTime = false;
-        console.log ('0: ' + (new Date()).toTimeString().substring(0,8));
+      gridViewPointer.ChartDataCallTime[rtnDataName][0] = (new Date()).toTimeString().substring(0,8);
+      isFirstTime = false;
     }
+    
+    gridViewPointer.ChartDataCallTime[rtnDataName][1] = (new Date()).toTimeString().substring(0,8);
 
     if (true === isRealTime) {
       addDataToChart(chart , data);
     } else {      
       ++dataNumb;
       nonRealTimeChartData.push([tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)]); 
-      chartDataX.push(data.MonTime);
-      chartDataY.push(parseFloat(data.AttrValue));
 
-      var curTime = (new Date()).toTimeString().substring(0,8);
-      if (MinusTime(curTime, data.MonTime) < realTimeLine ) {
-          console.log ('1: ' + curTime);
-          console.log ('data.MonTime: ' + data.MonTime);
-          console.log (MinusTime(curTime, data.MonTime));
+      // console.log ('0: ' + gridViewPointer.ChartDataCallTime[rtnDataName][0]);
+      // console.log ('1: ' + gridViewPointer.ChartDataCallTime[rtnDataName][1]);
+
+      if (MinusTime(gridViewPointer.ChartDataCallTime[rtnDataName][0],
+                    gridViewPointer.ChartDataCallTime[rtnDataName][1]) > realTimeLine ) {
 
           isRealTime = true;
-          // console.log (chartDataX);
-          // console.log (chartDataY);
 
           chart.series[0].setData(nonRealTimeChartData);
 
-          // chart.xAxis[0].setCategories(chartDataX);
-          // chart.series[0].setData(chartDataY); 
-
-          curChartModelSelector.show();
+          // curChartModelSelector.show();
           // console.log(dataNumb);
+      } else {
+        gridViewPointer.ChartDataCallTime[rtnDataName][0] = gridViewPointer.ChartDataCallTime[rtnDataName][1];
       }
     }
+
+    // gridViewPointer.ChartDataCallTime[rtnDataName][0] = gridViewPointer.ChartDataCallTime[rtnDataName][1];
+
   });  
 }
 

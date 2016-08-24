@@ -13,8 +13,6 @@ class Demo extends ScrollView
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'BinaryScreen', '二分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id:'ThreeSplitScreen', '三分屏'
         @button  class: 'SplitScreenBtn btn btn-lg', id: 'FourSplitScreen', '四分屏'
-      # @div outlet: 'testAppend'
-      # @div id : 'testGridData' + @gridID
       @div id : 'gridData', outlet:'gridData', =>
       @div id : 'chartData', outlet: 'chartData', =>
         # @div id : 'leftContainer'+ pa+rams.gridID, class: 'leftContainer', =>
@@ -38,31 +36,13 @@ class Demo extends ScrollView
   detached: ->
 
   initialize: ({@uri,@gridID,@pageID}) ->
-    # console.log '@uri:    ' + @uri
-    # console.log '@gridID: ' + @gridID
-    # console.log '@pageID: ' + @pageID
-
-    # testHtml = "<div>#{@gridID}</div>"
-    # testHtml = "<div id=\"HaHaHaHa#{@gridID}\">#{@gridID}</div>"
-    # @testAppend.append testHtml
-
-    # gridHtml = "<div id=\"leftContainer#{@gridID}\" class=\"leftContainer\">
-    #             <div id=\"gridOne#{@gridID}\" class=\"gridOne AttrItem\">
-    #             <div id=\"#{@pageID}\"></div></div></div>"
-
-    # gridHtml = "<div id=\"leftContainer"+@gridID+"\" class=\"leftContainer\">
-    #             <div id=\"gridOne"+@gridID+"\" class=\"gridOne AttrItem\">
-    #             <div id=\""+@pageID+"\"></div></div></div>"          
-
-    # console.log gridHtml
-    # @gridData.append gridHtml 
-
-    # console.log @block.parent().children().html()
-    # console.log @gridData.html()
-
+    
   serialize: ->
-    deserializer: @constructor.name
-    uri: @getURI()
+    # deserializer: @constructor.name
+    # uri: @getURI()
+
+  @deserialize: (state) ->
+    # new Demo(state)
 
   getURI: -> @uri
 

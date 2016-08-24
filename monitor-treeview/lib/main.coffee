@@ -31,12 +31,8 @@ module.exports =
       originalPageId = filePath.substring(("atom://gridViewDemo").length)
       transPageId = getObjectID(originalPageId)
       # console.log originalPageId
-
-      if true == window.isPageID
-        creatGridDemo({uri: filePath, gridID : transPageId, pageID: originalPageId})
-      else
-        creatGridDemo({uri: filePath, gridID : ++window.index, pageID: originalPageId})
-
+      creatGridDemo({uri: filePath, gridID : transPageId, pageID: originalPageId})
+      
   deactivate: ->
     @subscriptions?.dispose()
     @panel?.destroy()

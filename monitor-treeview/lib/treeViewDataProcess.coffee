@@ -497,7 +497,7 @@ onSelect = (e) ->
   reqQryOidRelationField.RequestId  = ++window.ReqQryOidRelationTopicRequestID
   reqQryOidRelationField.rspMessage = EVENTS.RspQryOidRelationTopic + reqQryOidRelationField.RequestId
   window.reqQryOidRelationField = reqQryOidRelationField;
-  window.isPageID = true;
+  
   rspData = []
   userApi.emitter.emit EVENTS.ReqQryOidRelationTopic, reqQryOidRelationField
 
@@ -507,11 +507,11 @@ onSelect = (e) ->
     if data.hasOwnProperty 'pRspQryOidRelation'
       rspData.push data.pRspQryOidRelation
       if data.bIsLast == true
-        # userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
+        
         gridID = getObjectID(data.pRspQryOidRelation.ObjectID)
         gridDataEventName = gridID
-        console.log "gridDataEventName: "+ gridDataEventName
-        # userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'gridID':gridID}
+        # console.log "gridDataEventName: "+ gridDataEventName
+       
         userApi.emitter.emit gridDataEventName, {'rspData':rspData, 'gridID':gridID}
 
         rspData = []

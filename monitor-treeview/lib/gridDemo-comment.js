@@ -459,3 +459,182 @@
 // var gridHtml = '<div id="gridOne"+'+ index +', class="gridOne AttrItem"> </div>';
 // $('#gridData').append(gridHtml);
 // console.log($("#gridOne" + index).attr('class'));
+
+
+// lishengze. Test Demo
+// function onChange() {
+//   var selectedRows = this.select();
+//   var objectID = this.element[0].childNodes[2].id;
+//   var HoldObjectID = $(selectedRows).text();
+
+//   // console.log (gridViewPointer.pageID);
+//   // console.log (this)
+//   console.log ('ObjectID: ' + objectID);
+//   console.log ('HoldObjectID: ' + HoldObjectID);
+
+//   reqQrySubscriberFunc(objectID, HoldObjectID);
+
+//   // initializeChart()
+// }
+
+// function testRegisterGridDataReceiveFunc(Pointer) {
+//   // console.log("Pointer.gridID: " + Pointer.gridID);
+//   // console.log("Pointer.pageID: " + Pointer.pageID);
+//   var gridDataEventName = Pointer.gridID;
+
+//   console.log("gridDataEventName: " + gridDataEventName);
+
+//   userApi.emitter.on(gridDataEventName, function(data){
+//       // console.log("gridViewPointer.gridID: " + gridViewPointer.gridID);
+//       // console.log("gridViewPointer.pageID: " + gridViewPointer.pageID);
+//       console.log(data);
+//   })  
+//   // return (function(gridViewPointer, eventName){
+//   //   return function() {
+//   //       userApi.emitter.on(eventName, function(data){
+//   //           console.log("gridViewPointer.gridID: " + gridViewPointer.gridID);
+//   //           console.log("gridViewPointer.pageID: " + gridViewPointer.pageID);
+//   //           console.log(data);
+//   //       })
+//   //   }
+//   // })(Pointer,gridDataEventName);
+// }
+
+// function TestRegisterGridDataReceiveFunc(Pointer) {
+//   return (function(gridViewPointer){
+//       var gridDataEventName = gridViewPointer.gridID;
+//       console.log("gridDataEventName: " + gridDataEventName);
+
+//       userApi.emitter.on(gridDataEventName, function(gridRspData){
+//           // console.log("gridViewPointer.gridID: " + gridViewPointer.gridID);
+//           // console.log("gridViewPointer.pageID: " + gridViewPointer.pageID);
+//           // console.log(gridRspData);
+
+//           var transGridData = transformGridData(gridRspData.rspData);
+
+//           // console.log("transGridData: ")
+//           // console.log(transGridData)
+
+//           if (true === window.isPageID) {
+//             var gridNodeId = 'gridOne' + gridRspData.gridID;
+//           } else {
+//             var gridNodeId = 'gridOne' + window.index;
+//           }
+
+//           // console.log('$(gridNodeId).parent().parent().parent().html()');
+//           // console.log($('#'+gridNodeId).parent().parent().parent().html());
+
+//           // console.log('gridViewPointer.gridData.html(): ' + gridViewPointer.gridData.html());
+//           // console.log('gridViewPointer.gridData.children().html(): ' + gridViewPointer.gridData.children().html());
+//           // console.log('gridViewPointer.gridData.html(): ' + gridViewPointer.gridData.find('#'+gridNodeId).html());
+
+//           // console.log('gridViewPointer.gridData.children("#"+gridNodeId): ');
+//           // console.log(gridViewPointer.gridData.children("#"+gridNodeId));
+
+//           // console.log ('gridViewPointer.gridNodeId.attr("id"): ' + gridViewPointer.gridNodeId.attr('id'));
+
+//           var gridSelector1 = $('#'+gridNodeId);
+//           var gridSelector2 = $(gridViewPointer.gridData.find('#'+gridNodeId));
+//           var gridSelector3 = $('#'+gridNodeId).find('#'+gridNodeId)['prevObject'];
+
+//           var grid1 = gridSelector1.data("kendoGrid");
+//           var grid2 = gridSelector2.data("kendoGrid");
+//           var grid3 = gridSelector3.data("kendoGrid");
+
+//           // console.log (gridSelector1.html());
+//           // console.log (grid1);
+//           // console.log (gridSelector2.html());
+//           // console.log (grid2);
+//           // console.log (gridSelector3.html());
+//           // console.log (grid3);
+
+//           var dataSource = new kendo.data.DataSource({data:transGridData});
+//           grid2.setDataSource(dataSource);   
+
+//           // var testSelector1 = $('#gridData');
+//           // var testSelector2 = gridViewPointer.gridData;
+
+//           // console.log(testSelector1);
+//           // console.log(testSelector1.html());     
+//           // console.log(testSelector2);
+//           // console.log(testSelector2.html());             
+//       })
+//   })(Pointer);
+// }
+
+// // 注册grid回调函数。数据接收完成后，进行页面的数据源设置。只注册一次。
+// function registerRspQryOidRelationTopicDone() {
+//   if (false === window.IsRspQryOidRelationTopicDone) {
+//     userApi.emitter.on('RspQryOidRelationTopicDone', function(gridRspData){
+//       // console.log (gridRspData);
+//       var indexDataTmp = [];
+//       var tmpItem = {};
+//       var rspData = gridRspData.rspData;
+//       for (var tmpindex = 0; tmpindex < rspData.length; ++tmpindex) {
+//         if (configData[rspData[tmpindex].HoldObjectID] !== undefined) {
+//           tmpItem = {
+//             '指标名称': configData[rspData[tmpindex].HoldObjectID].comment,
+//             '指标ID' : rspData[tmpindex].HoldObjectID
+//           }
+//           indexDataTmp.push(tmpItem);
+//         } else {
+//           console.log(rspData[tmpindex].HoldObjectID);
+//         }
+//       }
+
+//       console.log ("indexDataTmp: ");
+//       console.log (indexDataTmp);
+//       if (true === window.isPageID) {
+//         var gridNodeId = '#gridOne' + gridRspData.gridID;
+//       } else {
+//         var gridNodeId = '#gridOne' + window.index;
+//       }
+
+//       var grid = $(gridNodeId).data("kendoGrid");
+//       var dataSource = new kendo.data.DataSource({data:indexDataTmp});
+//       grid.setDataSource(dataSource);
+
+//       // console.log($("#gridData").html());
+//       // console.log($(gridNodeId).html());
+//       // console.log($(gridNodeId).parent().html());
+
+//       // console.log('$(gridNodeId).parent().parent().parent().html()');
+//       // console.log($(gridNodeId).parent().parent().parent().html());
+
+//     });
+//     window.IsRspQryOidRelationTopicDone = true;
+//   }
+// }
+
+// // 根据不同的订阅ID,注册对应的实施监听回调函数。
+// function registerRtnObjectAttrObjectID(eventName) {
+//   var testNumber = 0;
+//   userApi.emitter.on (eventName, function(data){
+//     // console.log ('testNumber: ' + testNumber++);
+//     // console.log(eventName);
+//     console.log(data);
+//   });
+
+//   // setInterval(function () {
+//   //   //  console.log ('+++++ testNumber: ' + testNumber++);
+//   // }, 5);
+// }
+
+// function registerRspQryObjectAttrTopic(eventName) {
+//   userApi.emitter.on(eventName, function(data){
+//     console.log(data);
+//   });
+// }
+
+// function reqQryObjectAttrFunc(objectID, attrType) {
+//   var reqQryObjectAttrData = new userApiStruct.CShfeFtdcReqQryObjectAttrField();
+//   reqQryObjectAttrData.ObjectID = objectID;
+//   reqQryObjectAttrData.AttrType = attrType;
+//   var reqQryObjectAttrField = {};
+//   reqQryObjectAttrField.reqObject  = reqQryObjectAttrData;
+//   reqQryObjectAttrField.RequestId  = ++window.ReqQryObjectAttrTopicRequestID;
+//   reqQryObjectAttrField.rspMessage = EVENTS.RspQryObjectAttrTopic + reqQryObjectAttrField.RequestId;
+
+//   registerRspQryObjectAttrTopic(reqQryObjectAttrField.rspMessage);
+
+//   userApi.emitter.emit(EVENTS.ReqQryObjectAttrTopic, reqQryObjectAttrField);
