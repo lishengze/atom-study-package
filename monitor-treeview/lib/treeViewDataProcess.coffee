@@ -489,7 +489,7 @@ creatGridDemo = (state) ->
 
 onSelect = (e) ->  
   dataItem = treeview.dataItem(e.node)
-  console.log dataItem.id
+  # console.log dataItem.id
   reqQryOidRelationData = new userApiStruct.CShfeFtdcReqQryOidRelationField()
   reqQryOidRelationData.ObjectID = dataItem.id
   reqQryOidRelationField = {}

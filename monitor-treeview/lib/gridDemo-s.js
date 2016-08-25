@@ -80,7 +80,7 @@ function initializeGrid(gridViewPointer) {
   containerLeft = $('.gridOne').width() + 15;
 
   gridViewPointer.ChartItem = [];
-  
+    
 }
 
 function registerGridItemDblClickFunc(gridViewPointer) {
@@ -104,7 +104,7 @@ function registerGridItemDblClickFunc(gridViewPointer) {
         // console.log (gridViewPointer.ChartItem);
       }      
     });
-
+        
 }
 
 function initializeChart(gridViewPointer, chartID) {
@@ -144,8 +144,8 @@ function initializeChart(gridViewPointer, chartID) {
           enabled: false
       },
       yAxis: {
-        max: 10, // 控制Y轴最大值，设成101是为了能显示100的grid
-        min: 0, // 设定y轴最小值
+        // max: 101, // 控制Y轴最大值，设成101是为了能显示100的grid
+        // min: 0, // 设定y轴最小值
         // minTickInterval: 0,
         // tickAmount: 6, // 控制y轴标线的个数
         // tickPixelInterval: 10, // 控制标线之间的中间间隔。
@@ -175,8 +175,8 @@ function initializeChart(gridViewPointer, chartID) {
   chart.setSize(curChartModelSelector.width(), curChartModelSelector.height() - toolbarHeight, false);
   // curChartModelSelector.hide();
   
-  setChartData(gridViewPointer, curChartModelSelector, chart, chartID);  
-  console.log ('0: ' + (new Date()).toTimeString().substring(0,8));
+  setChartData(gridViewPointer, curChartModelSelector, chart, chartID);
+  console.log ('0: ' + (new Date()).toTimeString().substring(0,8));  
 }
 
 function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
@@ -184,93 +184,18 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
   var chartDataX = [];
   var chartDataY = [];
   var dataNumb = 0;
-  var nonRealTimeChartData = [];
-  var RealTimeChartData = [];
-
-  var timeLimit = 10;
-  var realTimeLine = 2;
-
-  var isRealTime = false;  
-  var isFirstTime = true;
-
-  var firstTime;
-  var lastTime;
-  var curTime;
-
-  var updateFrequency = 500;
-  var isNewDataCome = false;
-
-  userApi.emitter.on (rtnDataName, function(data){
-
-    isNewDataCome = true;
-
-    if (true === isFirstTime) {
-      lastTime = (new Date()).toTimeString().substring(0,8);
-      firstTime = lastTime;
-      isFirstTime = false;
-    }
-    
-    if (true === isRealTime) {
-      // addDataToChart(chart , data);
-      RealTimeChartData.push(data); 
-    } else {      
-      ++dataNumb;
-      nonRealTimeChartData.push([tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)]); 
-      curTime = (new Date()).toTimeString().substring(0,8);
-
-      if ( MinusTime(curTime, lastTime) > realTimeLine || 
-           MinusTime(curTime, firstTime) > timeLimit)  {      
-          console.log ('1: ' + lastTime);
-          console.log ('2: ' + curTime);
-          console.log ('dataNumb: ' + dataNumb);
-          console.log ('data.MonTime: ' + data.MonTime);
-          // console.log(tranTimeToUTC(data.MonDate, data.MonTime));
-
-          isRealTime = true;
-
-          chart.series[0].setData(nonRealTimeChartData);          
-          // curChartModelSelector.show();
-      } else {
-        lastTime = curTime;
-      }
-    }
-
-  });  
-
-  setInterval(function() {
-    if (true === isNewDataCome ) {
-      isNewDataCome = false;
-      if ( false === isRealTime) {
-        chart.series[0].setData(nonRealTimeChartData);
-      } else {
-        for (var i = 0; i < RealTimeChartData.length; ++i) {
-          addDataToChart(chart, RealTimeChartData[i]);
-        }
-        RealTimeChartData = [];
-      }
-    }
-  }, updateFrequency)
-}
-
-function setChartDataTimeIntervel(gridViewPointer, curChartModelSelector, chart, chartID) {
-  var rtnDataName = gridViewPointer.pageID+'.'+chartID;
-  var chartDataX = [];
-  var chartDataY = [];
-  var dataNumb = 0;
 
   var isRealTime = false;
-  var realTimeLine = 2;
+  var realTimeLine = 3;
   var isFirstTime = true;
   var nonRealTimeChartData = [];
-  var lastTime;
 
   userApi.emitter.on (rtnDataName, function(data){
 
-    if (true === isFirstTime) {
-      lastTime = (new Date()).toTimeString().substring(0,8);
-      isFirstTime = false;
+    if (true === isFirstTime) {        
+        isFirstTime = false;
     }
-    
+
     if (true === isRealTime) {
       addDataToChart(chart , data);
     } else {      
@@ -278,48 +203,33 @@ function setChartDataTimeIntervel(gridViewPointer, curChartModelSelector, chart,
       nonRealTimeChartData.push([tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)]); 
 
       var curTime = (new Date()).toTimeString().substring(0,8);
-      if (MinusTime(curTime, lastTime) > realTimeLine ) {
-      // if (dataNumb > 2600 ) {
-          console.log ('1: ' + lastTime);
-          console.log ('2: ' + curTime);
+      if (MinusTime(curTime, data.MonTime) < realTimeLine ) {
+          console.log ('1: ' + curTime);
           console.log ('dataNumb: ' + dataNumb);
           console.log ('data.MonTime: ' + data.MonTime);
           isRealTime = true;
           chart.series[0].setData(nonRealTimeChartData);
-          
+
           // curChartModelSelector.show();
-      } else {
-        lastTime = curTime;
       }
     }
-
   });  
 }
 
 {
-            // if (MinusTime(curTime, lastTime) > realTimeLine) {
-          //     isRealTime = true;
-          // }
-          
-          // dataNumb = 0;
-        // console.log ('0: ' + gridViewPointer.ChartDataCallTime[rtnDataName][0]);
-      // console.log ('1: ' + gridViewPointer.ChartDataCallTime[rtnDataName][1]);
-      // console.log(data);
+    // console.log(data);
     // var curTime = (new Date()).toTimeString().substring(0,8);
     // console.log('data.MonTime: ' + data.MonTime);
     // console.log('curTime:      ' + curTime);
     // console.log(MinusTime(curTime, data.MonTime));
-      // callbackTime[1] = (new Date()).toTimeString().substring(0,8);
- // var time1Array = [];
-  // var time2Array = [];
-
-  // time1Array[0] = parseInt(time1.substring(0,2));
-  // time1Array[1] = parseInt(time1.substring(3,5));
-  // time1Array[2] = parseInt(time1.substring(6));
-
-  // time2Array[0] = parseInt(time2.substring(0,2));
-  // time2Array[1] = parseInt(time2.substring(3,5));
-  // time2Array[2] = parseInt(time2.substring(6));
+      // chartDataX.push(data.MonTime);
+      // chartDataY.push(parseFloat(data.AttrValue));
+          // console.log (chartDataX);
+          // console.log (chartDataY);
+          // console.log ('data.MonTime: ' + data.MonTime);
+          // console.log (MinusTime(curTime, data.MonTime));
+          // chart.xAxis[0].setCategories(chartDataX);
+          // chart.series[0].setData(chartDataY); 
 }
 
 function tranTimeToUTC(dateString, timeString) {
