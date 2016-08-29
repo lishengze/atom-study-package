@@ -30,7 +30,7 @@ beginReceiveData = (@TreeviewList, @menu)->
   ReqQryMonitorObjectTopicField.rspMessage =  EVENTS.RspQryMonitorObjectTopic + ReqQryMonitorObjectTopicField.RequestId
 
   userApi.emitter.on EVENTS.RspQyrUserLoginSucceed, (data) =>
-    console.log 'TreeView: ' + EVENTS.RspQyrUserLoginSucceed
+    # console.log 'TreeView: ' + EVENTS.RspQyrUserLoginSucceed
     userApi.emitter.emit EVENTS.ReqQryMonitorObjectTopic, ReqQryMonitorObjectTopicField
 
   treeviewData1 = []  # 后台传递的原始数据

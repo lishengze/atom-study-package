@@ -2,6 +2,8 @@ SidebarIconView = require './sidebarIcon-view'
 {CompositeDisposable} = require 'atom'
 PanelView = require './panel-view.coffee'
 
+window.displayItem = []
+
 creatGridDemo = (state)->
   Demo = require './gridDemoView.coffee'
   # console.log state
@@ -32,7 +34,13 @@ module.exports =
       transPageId = getObjectID(originalPageId)
       # console.log originalPageId
       creatGridDemo({uri: filePath, gridID : transPageId, pageID: originalPageId})
+    
+    atom.workspace.onDidChangeActivePaneItem (item)->
       
+      window.displayItem = [];
+      window.displayItem[item.pageID] = true;
+      console.log displayItem
+
   deactivate: ->
     @subscriptions?.dispose()
     @panel?.destroy()
@@ -41,3 +49,5 @@ module.exports =
 
   serialize: ->
     monitorTreeviewViewState: @sidebarIconView.serialize()
+
+
