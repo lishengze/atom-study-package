@@ -182,7 +182,7 @@ function initializeChart(gridViewPointer, chartID) {
 }
 
 
-function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
+function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
   var rtnDataName = gridViewPointer.pageID+'.'+chartID;
   var chartDataX = [];
   var chartDataY = [];
@@ -190,6 +190,9 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
   var nonRealTimeChartData = [];
   var RealTimeChartData = [];
   var testData = [];
+
+  var nonRealTimeChartDataTime = [];
+  var testDataTime = [];
 
   var timeLimit = 10;
   var realTimeLine = 2;
@@ -205,7 +208,7 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
   var curActive = false;
   var isItemTurnToActive = false;
 
-  var updateFrequency = 500;
+  var updateFrequency = 2000;
   var isNewDataCome = false;
 
   var curRtnData;
@@ -215,20 +218,31 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
     isNewDataCome = true;
     curRtnData = [tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)];
 
+    if (nonRealTimeChartData.length > 0 && nonRealTimeChartData[nonRealTimeChartData.length-1][0] === curRtnData[0]) {
+      return;
+    }
+
     if (true === isFirstTime) {
       lastTime = (new Date()).toTimeString().substring(0,8);
       firstTime = lastTime;
       isFirstTime = false;
     }
 
-    nonRealTimeChartData.push(curRtnData); 
+    if (nonRealTimeChartData.length < 10) {
+      console.log ('data.MonTime: ' + data.MonTime);
+    }
     
+    nonRealTimeChartData.push(curRtnData); 
+    nonRealTimeChartDataTime.push(data.MonTime);
+
     if (true === isRealTime) {      
       RealTimeChartData.push(curRtnData); 
     } else {      
       ++dataNumb;
       // nonRealTimeChartData.push(curRtnData); 
       testData.push(curRtnData);
+      testDataTime.push(data.MonTime);
+
       curTime = (new Date()).toTimeString().substring(0,8);
 
       if ( MinusTime(curTime, lastTime) > realTimeLine || 
@@ -240,26 +254,36 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
 
           isRealTime = true;
 
-          chart.series[0].setData(testData);          
-          console.log ('testData.length: ' + testData.length);
-          console.log ('nonRealTimeChartData.length: ' + nonRealTimeChartData.length);
+          console.log (testDataTime);
+          console.log (nonRealTimeChartDataTime);
+
+          chart.series[0].setData(nonRealTimeChartData); 
+          // chart.series[0].setData(testData);          
+          // console.log ('compareArray: ' + compareArray(testData, nonRealTimeChartData));
+
+          // console.log ('testData.length: ' + testData.length);
+          // console.log (testData[testData.length-1]);
+          // console.log ('nonRealTimeChartData.length: ' + nonRealTimeChartData.length);
+          // console.log (nonRealTimeChartData[nonRealTimeChartData.length-1]);
 
       } else {
         lastTime = curTime;
       }
     }
-
+    // console.log ('end!');
   });
   
   setInterval(function() {
     if (true === isNewDataCome ) {
       isNewDataCome = false;
       if ( false === isRealTime) {
-        console.log ('setData!');
+        console.log ('setInterval: setData!');
+        console.log (nonRealTimeChartData);
         chart.series[0].setData(nonRealTimeChartData);
       } else {
         for (var i = 0; i < RealTimeChartData.length; ++i) {
           addDataToChart(chart, RealTimeChartData[i]);
+          console.log ('add!');
         }
         RealTimeChartData = [];
       }
@@ -267,7 +291,20 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
   }, updateFrequency)
 }
 
-function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
+function compareArray(array1, array2) {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+  for (var i = 0; i < array1.length; ++i) {
+    if (array1[i][0] !== array2[i][0] ||
+    array1[i][1] !== array2[i][1] ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
   var rtnDataName = gridViewPointer.pageID+'.'+chartID;
   var dataNumb = 0;
   var nonRealTimeChartData = [];
