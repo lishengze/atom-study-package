@@ -39,7 +39,7 @@ module.exports =
       
       window.displayItem = [];
       window.displayItem[item.pageID] = true;
-      console.log displayItem
+      # console.log displayItem
 
   deactivate: ->
     @subscriptions?.dispose()

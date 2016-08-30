@@ -182,7 +182,7 @@ function initializeChart(gridViewPointer, chartID) {
 }
 
 
-function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
+function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
   var rtnDataName = gridViewPointer.pageID+'.'+chartID;
   var chartDataX = [];
   var chartDataY = [];
@@ -193,8 +193,9 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
 
   var nonRealTimeChartDataTime = [];
   var testDataTime = [];
+  var readDataTime = [];
 
-  var timeLimit = 10;
+  var timeLimit = 6;
   var realTimeLine = 2;
 
   var isRealTime = false;  
@@ -232,11 +233,16 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
       console.log ('data.MonTime: ' + data.MonTime);
     }
     
-    nonRealTimeChartData.push(curRtnData); 
+    if (true !== isRealTime) {
+      nonRealTimeChartData.push(curRtnData);
+    }
+     
+
     nonRealTimeChartDataTime.push(data.MonTime);
 
     if (true === isRealTime) {      
       RealTimeChartData.push(curRtnData); 
+      readDataTime.push(data.MonTime);
     } else {      
       ++dataNumb;
       // nonRealTimeChartData.push(curRtnData); 
@@ -247,19 +253,21 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
 
       if ( MinusTime(curTime, lastTime) > realTimeLine || 
            MinusTime(curTime, firstTime) > timeLimit)  {      
-          console.log ('1: ' + lastTime);
-          console.log ('2: ' + curTime);
-          console.log ('dataNumb: ' + dataNumb);
+          console.log ('nonReal SetData!')
+          // console.log ('1: ' + lastTime);
+          // console.log ('2: ' + curTime);
+          // console.log ('dataNumb: ' + dataNumb);
           console.log ('data.MonTime: ' + data.MonTime);
+          
 
           isRealTime = true;
 
-          console.log (testDataTime);
-          console.log (nonRealTimeChartDataTime);
+          // console.log (testDataTime);
+          // console.log (nonRealTimeChartDataTime);
 
           chart.series[0].setData(nonRealTimeChartData); 
           // chart.series[0].setData(testData);          
-          // console.log ('compareArray: ' + compareArray(testData, nonRealTimeChartData));
+          console.log ('CompareArray: ' + compareArray(testData, nonRealTimeChartData));
 
           // console.log ('testData.length: ' + testData.length);
           // console.log (testData[testData.length-1]);
@@ -278,14 +286,17 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
       isNewDataCome = false;
       if ( false === isRealTime) {
         console.log ('setInterval: setData!');
-        console.log (nonRealTimeChartData);
+        console.log ('nonRealTimeChartData.length: ' + nonRealTimeChartData.length);
+        // console.log (nonRealTimeChartData);
         chart.series[0].setData(nonRealTimeChartData);
+       
       } else {
         for (var i = 0; i < RealTimeChartData.length; ++i) {
-          addDataToChart(chart, RealTimeChartData[i]);
-          console.log ('add!');
+          console.log ('Add, data.MonTime: ' + readDataTime[i]);
+          addDataToChart(chart, RealTimeChartData[i]);          
         }
         RealTimeChartData = [];
+        readDataTime = [];
       }
     }
   }, updateFrequency)
@@ -304,12 +315,15 @@ function compareArray(array1, array2) {
   return true;
 }
 
-function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
+function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
   var rtnDataName = gridViewPointer.pageID+'.'+chartID;
   var dataNumb = 0;
+
+  var chartData = [];
   var nonRealTimeChartData = [];
   var RealTimeChartData = [];
   var testData = [];
+
   var timeLimit = 10;
   var realTimeLine = 2;
 
@@ -332,7 +346,7 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
 
     isNewDataCome = true;
     curRtnData = [tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)];
-    curActive = window.displayItem[gridViewPointer.pageID];
+    chartData.push(curRtnData);
 
     if (true === isFirstTime) {
       lastTime = (new Date()).toTimeString().substring(0,8);
@@ -340,6 +354,7 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
       isFirstTime = false;      
     }
 
+    curActive = window.displayItem[gridViewPointer.pageID];
     if (true !== lastActive && true === curActive) {
       isItemTurnToActive = true;      
     } else {
@@ -347,16 +362,22 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
     }  
     lastActive = curActive;
 
-    console.log ('curActive: ' + curActive);
-    console.log ('isRealTime: ' + isRealTime);
-    console.log ('isItemTurnToActive: ' + isItemTurnToActive);
+    // console.log ('****** curActive: ' + curActive);
+    // console.log ('isRealTime: ' + isRealTime);
+    // console.log ('isItemTurnToActive: ' + isItemTurnToActive);
 
-    nonRealTimeChartData.push(curRtnData);
+    // if (true === isItemTurnToActive) {
+    //   chart.series[0].setData(chartData);
+    //   return;
+    // }
+    if (true !== curActive) {
+      console.log ('hide!');
+    }
 
     if (true === isRealTime) {
 
       if (true === curActive) {
-        console.log ('RealTimeChartData!');
+        // console.log ('RealTimeChartData!');
         // console.log (curRtnData);
         RealTimeChartData.push(curRtnData);
         // addDataToChart(chart, curRtnData);
@@ -368,23 +389,20 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
       
     } else {      
       ++dataNumb;
-      // nonRealTimeChartData.push(curRtnData); 
-      testData.push(curRtnData);
+      nonRealTimeChartData.push(curRtnData); 
+      // testData.push(curRtnData);
       curTime = (new Date()).toTimeString().substring(0,8);
 
       if ( MinusTime(curTime, lastTime) > realTimeLine || 
           MinusTime(curTime, firstTime) > timeLimit)  {      
-          console.log ('1: ' + lastTime);
-          console.log ('2: ' + curTime);
-          console.log ('dataNumb: ' + dataNumb);
-          console.log ('data.MonTime: ' + data.MonTime);
 
           isRealTime = true;
           if (true === curActive) {
             console.log('SetData in Rsp!')
             // console.log (nonRealTimeChartData);
-            // console.log (curRtnData);
-            chart.series[0].setData(testData); 
+            // chart.series[0].setData(testData); 
+            // chart.series[0].setData(nonRealTimeChartData); 
+            chart.series[0].setData(chartData); 
           }                     
       } else {
         lastTime = curTime;
@@ -394,24 +412,49 @@ function setChartDatab(gridViewPointer, curChartModelSelector, chart, chartID) {
   });  
 
   setInterval(function() {
-    // console.log ('curActive: ' + curActive);
+
+    // curActive = window.displayItem[gridViewPointer.pageID];
+    // if (true !== lastActive && true === curActive) {
+    //   isItemTurnToActive = true;      
+    // } else {
+    //   isItemTurnToActive = false;
+    // }  
+    // lastActive = curActive;
+
+    // console.log ('****** curActive: ' + curActive);
+    // console.log ('isRealTime: ' + isRealTime);
     // console.log ('isItemTurnToActive: ' + isItemTurnToActive);
+
+    // if (isItemTurnToActive) {
+    //   console.log ('isItemTurnToActive: ' + isItemTurnToActive);
+    // }
 
     if (true === isNewDataCome && true === curActive) {
       isNewDataCome = false;
 
       if ( true === isItemTurnToActive || false === isRealTime) {
-        chart.series[0].setData(nonRealTimeChartData);
-        console.log ('setData!');
+        console.log ('setInterval: setData!');
+        chart.series[0].setData(chartData);
       } else {
         for (var i = 0; i < RealTimeChartData.length; ++i) {
-          // console.log ('add : ' + i);          
-          addDataToChart(chart, RealTimeChartData[i]);
-          // chart.series[0].addPoint(RealTimeChartData[i], true, false);
+          console.log ('add : ' + i);          
+          addDataToChart(chart, RealTimeChartData[i]);          
         }
         RealTimeChartData = [];
       }
       
+      // if ( true === isItemTurnToActive || false === isRealTime) {
+      // // if ( false === isRealTime) {
+      //   console.log ('setInterval: setData!');
+      //   chart.series[0].setData(nonRealTimeChartData);
+      // } else {
+      // // } else if (true !== isItemTurnToActive){
+      //   for (var i = 0; i < RealTimeChartData.length; ++i) {
+      //     console.log ('add : ' + i);          
+      //     addDataToChart(chart, RealTimeChartData[i]);          
+      //   }
+      //   RealTimeChartData = [];
+      // }
     }
   }, updateFrequency)
 }
