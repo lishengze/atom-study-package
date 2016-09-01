@@ -53,8 +53,7 @@ class PanelView extends ScrollView
   initialize: (state) ->
     # console.log "initialize function has been called"
     @handleEvents()
-    # console.log state
-    # @width(state.width) if state.width > 0
+
   handleEvents: ->
     @on 'mousedown', '.tree-view-resize-handle', (e) => @resizeStarted(e)
   resizeStarted: =>

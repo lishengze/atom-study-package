@@ -92,14 +92,14 @@ beginReceiveData = (@TreeviewList, @menu)->
   netMonitorAttrerScopeField4.rspMessage = EVENTS.RspQryNetMonitorAttrScopeTopic + netMonitorAttrerScopeField4.RequestId
 
   userApi.emitter.on EVENTS.RspQyrUserLoginSucceed, (data) =>
-    console.log 'Login in'
+    # console.log 'Login in'
     userApi.emitter.emit EVENTS.ReqQryMonitorObjectTopic, ReqQryMonitorObjectTopicField
 
     userApi.emitter.emit EVENTS.ReqQryNetMonitorAttrScopeTopic, netMonitorAttrerScopeField4
 
     userApi.emitter.on netMonitorAttrerScopeField4.rspMessage, (data) =>
-      console.log netMonitorAttrerScopeField4.rspMessage
-      console.log data
+      # console.log netMonitorAttrerScopeField4.rspMessage
+      # console.log data
 
   treeviewData1 = []  # 后台传递的原始数据
   userApi.emitter.on ReqQryMonitorObjectTopicField.rspMessage, (data) ->
@@ -555,7 +555,7 @@ sortData = (data) ->
 # module.exports.setup = setup
 
 creatGridDemo = (state) ->
-  console.log 'creatGridDemo'
+  # console.log 'creatGridDemo'
 
   Demo = require('./gridDemoView.coffee')
   p = new Demo(state)
@@ -569,9 +569,9 @@ creatGridDemo = (state) ->
 #   change: function (e) {}
 # }).data('kendoTreeView')
 onSelect = (e) ->
-  console.log(e)
+  # console.log(e)
   dataItem = treeview.dataItem(e.node)
-  console.log dataItem.id
+  # console.log dataItem.id
   reqQryOidRelationData = new userApiStruct.CShfeFtdcReqQryOidRelationField()
   reqQryOidRelationData.ObjectID = dataItem.id
   reqQryOidRelationField = {}
@@ -591,7 +591,7 @@ onSelect = (e) ->
       if data.bIsLast == true
         gridID = getObjectID(data.pRspQryOidRelation.ObjectID)
         gridDataEventName = gridID
-        console.log "gridDataEventName: "+ gridDataEventName
+        # console.log "gridDataEventName: "+ gridDataEventName
 
         userApi.emitter.emit gridDataEventName, {'rspData':rspData, 'gridID':gridID}
 

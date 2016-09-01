@@ -1,13 +1,14 @@
 SidebarIconView = require './sidebarIcon-view'
 {CompositeDisposable} = require 'atom'
 PanelView = require './panel-view.coffee'
-# gridDemoUri = 'atom://gridDemo'
+
+window.displayItem = []
+
 creatGridDemo = (state)->
   Demo = require './gridDemoView.coffee'
-  console.log state
+  # console.log state
   @p = new Demo(state)
-  # @p.getTitle state.uri
-  # @p
+
 window.getObjectID = (originalString) ->
   stringArray = originalString.split(".")
   transString = ""
@@ -22,9 +23,7 @@ module.exports =
     @sidebarIconView = new SidebarIconView(@panel)
     @sidebarTile = @sidebar.addTile(item: @sidebarIconView, priority: 1)
 
-
   activate: (state) ->
-    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
     window.index = 0
     window.registerRtnObjectAttrTopic   = false;
@@ -35,7 +34,19 @@ module.exports =
       transPageId = getObjectID(originalPageId)
       # console.log originalPageId
       creatGridDemo({uri: filePath, gridID : transPageId, pageID: originalPageId})
-            
+    
+    atom.workspace.onDidChangeActivePaneItem (item)->
+      
+      if null == item
+        return;
+
+      window.displayItem = [];
+      window.displayItem[item.pageID] = true;
+      # console.log displayItem
+
+    atom.workspace.onDidDestroyPaneItem (event)->
+      console.log event
+
   deactivate: ->
     @subscriptions?.dispose()
     @panel?.destroy()
@@ -43,5 +54,6 @@ module.exports =
     @sidebarTile?.destroy()
 
   serialize: ->
-    # console.log 'serialize'
     monitorTreeviewViewState: @sidebarIconView.serialize()
+
+

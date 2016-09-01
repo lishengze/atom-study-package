@@ -1,12 +1,13 @@
 SidebarIconView = require './sidebarIcon-view'
 {CompositeDisposable} = require 'atom'
 PanelView = require './panel-view.coffee'
-
+window.displayItem = []
+# gridDemoUri = 'atom://gridDemo'
 creatGridDemo = (state)->
   Demo = require './gridDemoView.coffee'
-  # console.log state
   @p = new Demo(state)
-
+  # @p.getTitle state.uri
+  # @p
 window.getObjectID = (originalString) ->
   stringArray = originalString.split(".")
   transString = ""
@@ -21,21 +22,27 @@ module.exports =
     @sidebarIconView = new SidebarIconView(@panel)
     @sidebarTile = @sidebar.addTile(item: @sidebarIconView, priority: 1)
 
+
   activate: (state) ->
+    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
     window.index = 0
     window.registerRtnObjectAttrTopic   = false;
     window.IsRspQryOidRelationTopicDone = false;
 
+    atom.workspace.onDidChangeActivePaneItem (item)->
+      ## 当关掉最后一个页面时，item值为 undefined 因此要加个判断
+      # console.log item
+      if item == undefined
+        return
+      window.displayItem = [];
+      window.displayItem[item.pageID] = true;
+
     atom.workspace.addOpener (filePath) ->
       originalPageId = filePath.substring(("atom://gridViewDemo").length)
       transPageId = getObjectID(originalPageId)
       # console.log originalPageId
-
-      if true == window.isPageID
-        creatGridDemo({uri: filePath, gridID : transPageId, pageID: originalPageId})
-      else
-        creatGridDemo({uri: filePath, gridID : ++window.index, pageID: originalPageId})
+      creatGridDemo({uri: filePath, gridID : transPageId, pageID: originalPageId})
 
   deactivate: ->
     @subscriptions?.dispose()
@@ -44,4 +51,5 @@ module.exports =
     @sidebarTile?.destroy()
 
   serialize: ->
+    # console.log 'serialize'
     monitorTreeviewViewState: @sidebarIconView.serialize()

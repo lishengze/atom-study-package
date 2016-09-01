@@ -29,21 +29,35 @@ function setup(gridViewPointer) {
   gridViewPointer.nodeQueue = [] // 存储选中的属性节点信息
   gridViewPointer.itemsArray = []
   gridViewPointer.screenSelect = 1; // 当前页面全局参数，表示选择的分屏个数
-
-  // console.log(gridViewPointer.screenSelect)
-
+  console.log(gridViewPointer.screenSelect)
   var FourSplitScreenSelector = gridViewPointer.FourSplitScreen
   gridViewPointer.containerHeight = window.innerHeight - 50
   gridViewPointer.containerLeft = $(FourSplitScreenSelector).position().left + $(FourSplitScreenSelector).outerWidth() + 5;
   gridViewPointer.screenWidth = $('.baobiaoContainer').width() - gridViewPointer.containerLeft - 20
-
   window.configData = getConfigData();
   registerRtnObjectAttrTopic(gridViewPointer);
   initializeGrid(gridViewPointer);
   registerGridDataReceiveFunc(gridViewPointer);
-
   SplitScreen(gridViewPointer) // 分屏操作函数
-
+  // eventProcess(gridViewPointer)
+  // // highcharts图表 resize操作
+  // // $('#CPUUsageModel' + index).resizable({
+  // //    // On resize, set the chart size to that of the
+  // //    // resizer minus padding. If your chart has a lot of data or other
+  // //    // content, the redrawing might be slow. In that case, we recommend
+  // //    // that you use the 'stop' event instead of 'resize'.
+  // //    resize: function() {
+  // //        console.log($(this))
+  // //        var chartNode = $(this).find('#CPUUsage' + index)
+  // //        var chart = $(chartNode).highcharts()
+  // //        console.log(chart)
+  // //        chart.setSize(
+  // //            $(this).width() - 20,
+  // //            $(this).height() - 20,
+  // //            false
+  // //        );
+  // //    }
+  // });
 }
 
 function registerGridDataReceiveFunc(gridViewPointer) {
@@ -97,19 +111,21 @@ function initializeGrid(gridViewPointer) { // 初始化 grid 属性列表 表格
           selectedRows.dblclick(function(e) {
             var objectID = gridViewPointer.pageID;
             var HoldObjectID = selectedText;
+            // console.log(HoldObjectID)
             if (gridViewPointer.ChartItem[HoldObjectID] !== true) {
               initializeChart(gridViewPointer, HoldObjectID);
+              // console.log(objectID)
+              // console.log(HoldObjectID)
               reqQrySubscriberFunc(objectID, HoldObjectID);
               gridViewPointer.ChartItem[HoldObjectID] = true;
             }
-
             selectedNode = gridViewPointer.chartData.find($('#'+ selectedText + gridViewPointer.gridID + 'Model'))
             gridViewPointer.nodeQueue.unshift(selectedNode)
             //  console.log(gridViewPointer.screenSelect)
-            // console.log(selectedNode)
+            console.log(selectedNode)
              nodePosition(gridViewPointer)
              eventProcess(selectedNode)
-            //  console.log('event')
+             console.log('event')
             // SortDivHandler.Initialize();
           })
         }
@@ -118,11 +134,49 @@ function initializeGrid(gridViewPointer) { // 初始化 grid 属性列表 表格
     selectable: "multiple cell",
     sortable: true
   });
-
+  // gridSelector.bind('change',  registerGridItemDblClickFunc(gridViewPointer))
   $(gridSelector).outerWidth($(gridViewPointer.FourSplitScreen).position().left +  $(gridViewPointer.FourSplitScreen).outerWidth())
   $(gridSelector).height(window.innerHeight - $(gridViewPointer.FourSplitScreen).offset().top - $(gridViewPointer.FourSplitScreen).outerHeight() - 20)
   containerLeft = $(gridSelector).width() + 15;
+
 }
+
+// function registerGridItemDblClickFunc(e, gridViewPointer) { // 生成选中的属性 对应的chart 对象
+//   times ++
+//   var selectedRows = this.select();
+//   if( times % 2 === 1) {
+//     var selectedNode = null;
+//     var selectedText = $(selectedRows[0].parentNode)[0].lastChild.textContent; // 如果选中的为指标名称，自动转为指标ID
+//     var isItemHasBeenChoosen = false
+//     for(var i = 0; i < gridViewPointer.itemsArray.length; i ++){
+//       if(selectedText === gridViewPointer.itemsArray[i]){
+//         isItemHasBeenChoosen =  true
+//         break
+//       }
+//     }
+//     if(isItemHasBeenChoosen === false) {  // 如果该对象注册过，那么不再执行后面的注册函数,避免一个属性注册多次双击事件
+//       gridViewPointer.itemsArray.push(selectedText)
+//      // console.log($(selectedRows[0].parentNode)[0].lastChild.textContent)
+//       selectedRows.dblclick(function(e) {
+//         var objectID = gridViewPointer.pageID;
+//         var HoldObjectID = selectedText;
+//         if (gridViewPointer.ChartItem[HoldObjectID] !== true) {
+//           initializeChart(gridViewPointer, HoldObjectID);
+//           reqQrySubscriberFunc(gridViewPointer, objectID, HoldObjectID);
+//           gridViewPointer.ChartItem[HoldObjectID] = true;
+//         }
+//         selectedNode = gridViewPointer.chartData.find($('#'+ selectedText + gridViewPointer.gridID + 'Model'))
+//         gridViewPointer.nodeQueue.unshift(selectedNode)
+//         // console.log(times)
+//         //  console.log(gridViewPointer.nodeQueue)
+//          console.log(gridViewPointer.screenSelect)
+//          nodePosition(gridViewPointer,gridViewPointer.screenSelect)
+//         eventProcess()
+//         // SortDivHandler.Initialize();
+//       })
+//     }
+//   }
+// }
 
 function initializeChart(gridViewPointer,chartID) {
   var gridHtml = "<div id=\"" + chartID + gridViewPointer.gridID + "Model\" class=\" UsageModel AttrItem\">\
@@ -219,16 +273,11 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
   var isNewDataCome = false;
   var curRtnData;
   userApi.emitter.on (rtnDataName, function(data){
-    if (true === gridViewPointer.isClosed) {
-        // console.log (gridViewPointer.pageID + ' has been closed! ');
-        return;
-    }
-
     isNewDataCome = true;
     curRtnData = [tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)];
 
     chartDataAll.push(curRtnData);
-    gridViewPointer.testData = data.MonTime;
+
     testData.push(curRtnData);
     ++testChartDataNumb;
 
@@ -312,6 +361,81 @@ function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
   }, updateFrequency)
 }
 
+
+function setChartData1(gridViewPointer,curChartModelSelector, chart, chartID) {
+  var rtnDataName = gridViewPointer.pageID+'.'+chartID;
+  var dataNumb = 0;
+  var nonRealTimeChartData = [];
+  var RealTimeChartData = [];
+
+  var timeLimit = 10;
+  var realTimeLine = 2;
+
+  var isRealTime = false;
+  var isFirstTime = true;
+
+  var firstTime;
+  var lastTime;
+  var curTime;
+
+  var updateFrequency = 500;
+  var isNewDataCome = false;
+
+  userApi.emitter.on (rtnDataName, function(data){
+
+    isNewDataCome = true;
+
+    if (true === isFirstTime) {
+      lastTime = (new Date()).toTimeString().substring(0,8);
+      firstTime = lastTime;
+      isFirstTime = false;
+    }
+
+    if (true === isRealTime) {
+      // console.log(data)
+      // addDataToChart(chart , data);
+      RealTimeChartData.push([tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)]);
+    } else {
+      ++dataNumb;
+      // console.log(data)
+      nonRealTimeChartData.push([tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)]);
+      curTime = (new Date()).toTimeString().substring(0,8);
+
+      if ( MinusTime(curTime, lastTime) > realTimeLine ||
+           MinusTime(curTime, firstTime) > timeLimit)  {
+          // console.log ('1: ' + lastTime);
+          // console.log ('2: ' + curTime);
+          // console.log ('dataNumb: ' + dataNumb);
+          // console.log ('data.MonTime: ' + data.MonTime);
+          // console.log(tranTimeToUTC(data.MonDate, data.MonTime));
+
+          isRealTime = true;
+          chart.series[0].setData(nonRealTimeChartData);
+          // curChartModelSelector.show();
+      } else {
+        lastTime = curTime;
+      }
+    }
+
+  });
+
+  setInterval(function() {
+    if (true === isNewDataCome ) {
+      isNewDataCome = false;
+      if ( false === isRealTime) {
+        chart.series[0].setData(nonRealTimeChartData);
+      } else {
+        for (var i = 0; i < RealTimeChartData.length; ++i) {
+          // console.log(chart)
+          addDataToChart(chart, RealTimeChartData[i]);
+        }
+        // console.log(chart)
+        RealTimeChartData = [];
+      }
+    }
+  }, updateFrequency)
+}
+
 function tranTimeToUTC(dateString, timeString) {
   var dateArray = [];
   dateArray[0] = parseFloat(dateString.substring(0,4));
@@ -331,7 +455,7 @@ function tranTimeToUTC(dateString, timeString) {
 
 function addDataToChart(chart, data) {
   var series = chart.series[0];
-  series.addPoint(data, true, false);
+  series.addPoint(data, true, true);
 }
 
 function MinusTime(time1, time2) {
@@ -492,9 +616,20 @@ function nodePosition(gridViewPointer) { // 根据分屏要求，确定对象位
  for(var j = 0; j < gridViewPointer.screenSelect; j++) {
    $(gridViewPointer.nodeQueue[j]).show()
  }
-
+//  for(var i = num; i < gridViewPointer.nodeQueue.length; i ++) {
+//    var flag = 0
+//    for(var j = 0; j <num; j++) {
+//      if(gridViewPointer.nodeQueue[i] === gridViewPointer.nodeQueue[j]) {
+//        flag = 1
+//        break
+//      }
+//    }
+//    if(flag !== 1) {
+//      console.log(gridViewPointer.nodeQueue[i])
+//      $(gridViewPointer.nodeQueue[i]).hide()
+//    }
+//  }
 }
-
 function SplitScreen(gridViewPointer) { //分屏操作
   $(gridViewPointer.ASplitScreen).click(function(e){
     console.log(gridViewPointer.gridID)
@@ -534,7 +669,6 @@ function SplitScreen(gridViewPointer) { //分屏操作
   //   }
   // })
 }
-
 var SortDivHandler = {
   CurrentLocationX: 0,
   CurrentLocationY: 0,
@@ -618,13 +752,11 @@ var SortDivHandler = {
     });
   }
 }
-
 function eventProcess(selectedNode) { //事件操作
   SortDivHandler.Initialize() // 带有div位置交换的 鼠标移动操作
   // mouseEventProcess() //鼠标移动操作
   clickEventProcess(selectedNode)
 }
-
 function mouseEventProcess() {
    //// 鼠标拖拽操作
   var dragging = false
@@ -650,7 +782,6 @@ function mouseEventProcess() {
     dragging = false
   })
 }
-
 function clickEventProcess(selectedNode) {
   var nodeCurPosition = []
   document.onclick = function(e) { //将鼠标点击的属性对象放置最上层
@@ -674,7 +805,6 @@ function clickEventProcess(selectedNode) {
     resizeNode(node)
   })
 }
-
 function windowResizeEvent(currentGridViewPointer) {
    /* 每次打开一个tab页，都会注册resize监听函数，当 window 大小重置时，所有页面都会执行resize操作
      当执行resize操作时，要重新计算属性列表的长宽。而测试发现，非当前页面的FourSplitScreen button position值为 0
@@ -697,7 +827,6 @@ function windowResizeEvent(currentGridViewPointer) {
   //   nodePosition(currentGridViewPointer,screenSelect)
   // })
 }
-
 function resizeNode(node) {
   // var toolbarHeight = 2 * parseInt($('#CPUUsageModel' + index ).css('border-width')) + $('.k-grid-toolbar').height() //计算出边框和toolbar的高度。便于设定 Highcharts高度
   var nodeMaxWidth = $('.baobiaoContainer').width() - 10
@@ -731,6 +860,96 @@ function resizeNode(node) {
      }
   }
 }
+// var SortDivHandler = {
+//   CurrentLocationX: 0,
+//   CurrentLocationY: 0,
+//   CurrentSortFlag: 0,
+//   CurrentSortDiv: null,
+//   CurrentZindex: 0,
+//   CurrentSortMove: 0,
+//   Initialize: function() {
+//     var isStart = false;
+//     var isDrag = false;
+//     var currentTarget = null;
+//     var currentDisX = 0;
+//     var currentDisY = 0;
+//     var HandlerParent = null;
+//     $('.k-grid-toolbar').mousedown(function(e) {
+//       var SortTarget = $(this).parent();
+//       SortDivHandler.CurrentSortMove = 0;
+//       SortDivHandler.CurrentSortDiv = $(this).parent();
+//       SortDivHandler.CurrentZindex = $(this).parents('.AttrItem').css('z-index')
+//       isDrag = true;
+//       SortDivHandler.CurrentLocationX = SortTarget.position().left;
+//       SortDivHandler.CurrentLocationY = SortTarget.position().top;
+//       SortTarget.attr("drag", 1);
+//       currentTarget = SortTarget;
+//       currentDisX = e.pageX - $(this).offset().left;
+//       currentDisY = e.pageY - $(this).offset().top;
+//     })
+//     $(document).mousemove(function(event) {
+//       if(isDrag) {
+//         console.log('move in down')
+//         // console.log(currentTarget)
+//         // console.log('drag : ' + $(currentTarget).attr("drag"))
+//         // console.log('value : ' + SortDivHandler.CurrentSortMove)
+//         if ($(currentTarget).attr("drag") == 0 || SortDivHandler.CurrentSortMove == 1) return;
+//         // if(SortDivHandler.CurrentSortDiv.hasClass('gridOne') === false) //若为属性列表，则zindex不变
+//         SortDivHandler.CurrentSortDiv.css("z-index", 0).css("opacity", 0.6);
+//         var nodeLeft = window.innerWidth - $('.baobiaoContainer').width() - $('.tree-view-resize-handle').width()/2 // left 位置
+//         var currentX = event.clientX;
+//         var currentY = event.clientY;
+//         var cursorX = event.pageX - currentDisX; // $(this).offset().left;
+//         var cursorY = event.pageY - currentDisY; //-$(this).offset().top;
+//         $(currentTarget).css("top", cursorY - $('.tab-bar').height() - 3 + "px").css("left", cursorX - nodeLeft + "px");
+//         // console.log('isStart is true')
+//         isStart = true;
+//       }
+//     });
+//     // $(document).mouseup(function() {
+//     //   // if(isDrag==false)return;
+//     //   $(currentTarget).attr("drag", 0);
+//     //   $(currentTarget).css("opacity", 1).css('z-index', SortDivHandler.CurrentZindex);
+//     // });
+//   $(".k-grid-toolbar").mousemove(function() {
+//       // console.log($(this).parent().attr("id"))
+//       var thisParent = $(this).parent()
+//       // console.log(thisParent)
+//       if (isStart == false) return;
+//           // if (SortDivHandler.CurrentSortFlag == 0) {
+//       if (thisParent.attr("id") == SortDivHandler.CurrentSortDiv.attr("id")) {
+//         // console.log('same id')
+//         return;
+//       } else {
+//         if (SortDivHandler.CurrentSortMove == 1) return;
+//         // console.log(SortDivHandler)
+//         SortDivHandler.CurrentSortMove = 1;
+//         var targetX = thisParent.position().left;
+//         var targetY = thisParent.position().top;
+//         SortDivHandler.CurrentSortDiv.stop(true).animate({
+//           left: targetX  + "px",
+//           top: targetY + "px"
+//         }, 500, function() {
+//           // console.log(SortDivHandler.CurrentSortDiv.parent().css('left'))
+//           $(this).css("opacity", 1).css('z-index', SortDivHandler.CurrentZindex);
+//         });
+//         $(this).parent().stop(true).animate({
+//           left: SortDivHandler.CurrentLocationX  + "px",
+//           top: SortDivHandler.CurrentLocationY  + "px"
+//         }, 300, function() {});
+//         isDrag = false;
+//       }
+//       // }
+//     });
+//
+//     $(document).mouseup(function() {
+//       $(currentTarget).attr("drag", 0);
+//       $(currentTarget).css("opacity", 1).css('z-index', SortDivHandler.CurrentZindex);
+//       if (isDrag == false) return;
+//       SortDivHandler.CurrentSortMove = 1;
+//     });
+//   }
+// }
 
 function initialDataGenerator() { // 构建初始随机值
   var Mydata = []
@@ -744,6 +963,5 @@ function initialDataGenerator() { // 构建初始随机值
   }
   return Mydata
 }
-
 module.exports.setup = setup
 module.exports.nodePosition = nodePosition

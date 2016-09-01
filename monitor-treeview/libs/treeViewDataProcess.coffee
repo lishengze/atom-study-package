@@ -30,7 +30,7 @@ beginReceiveData = (@TreeviewList, @menu)->
   ReqQryMonitorObjectTopicField.rspMessage =  EVENTS.RspQryMonitorObjectTopic + ReqQryMonitorObjectTopicField.RequestId
 
   userApi.emitter.on EVENTS.RspQyrUserLoginSucceed, (data) =>
-    console.log 'TreeView: ' + EVENTS.RspQyrUserLoginSucceed
+    # console.log 'TreeView: ' + EVENTS.RspQyrUserLoginSucceed
     userApi.emitter.emit EVENTS.ReqQryMonitorObjectTopic, ReqQryMonitorObjectTopicField
 
   treeviewData1 = []  # 后台传递的原始数据
@@ -489,7 +489,7 @@ creatGridDemo = (state) ->
 
 onSelect = (e) ->  
   dataItem = treeview.dataItem(e.node)
-  console.log dataItem.id
+  console.log 'Select ' + dataItem.id
   reqQryOidRelationData = new userApiStruct.CShfeFtdcReqQryOidRelationField()
   reqQryOidRelationData.ObjectID = dataItem.id
   reqQryOidRelationField = {}
@@ -497,7 +497,7 @@ onSelect = (e) ->
   reqQryOidRelationField.RequestId  = ++window.ReqQryOidRelationTopicRequestID
   reqQryOidRelationField.rspMessage = EVENTS.RspQryOidRelationTopic + reqQryOidRelationField.RequestId
   window.reqQryOidRelationField = reqQryOidRelationField;
-  window.isPageID = true;
+  
   rspData = []
   userApi.emitter.emit EVENTS.ReqQryOidRelationTopic, reqQryOidRelationField
 
@@ -507,17 +507,18 @@ onSelect = (e) ->
     if data.hasOwnProperty 'pRspQryOidRelation'
       rspData.push data.pRspQryOidRelation
       if data.bIsLast == true
-        # userApi.emitter.emit 'RspQryOidRelationTopicDone', rspData
+        
         gridID = getObjectID(data.pRspQryOidRelation.ObjectID)
         gridDataEventName = gridID
-        console.log "gridDataEventName: "+ gridDataEventName
-        # userApi.emitter.emit 'RspQryOidRelationTopicDone', {'rspData':rspData, 'gridID':gridID}
+        # console.log "gridDataEventName: "+ gridDataEventName
+       
         userApi.emitter.emit gridDataEventName, {'rspData':rspData, 'gridID':gridID}
 
         rspData = []
 
   if 'items' of dataItem == false or dataItem.items.length == 0
     uri = 'atom://gridViewDemo' + dataItem.id
+    console.log 'open ' + uri
     atom.workspace.open uri
 
   return
