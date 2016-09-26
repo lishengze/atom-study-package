@@ -27,8 +27,9 @@ class Demo extends ScrollView
   windowResize: ->
     {nodePosition}=require './gridDemo.js'
     $(window).resize =>
-
-      if true == window.Item[this.pageID].isClosed 
+      console.log this.isClosed
+      
+      if true == this.isClosed 
         console.log this.pageID + ' has been closed! '
         return;
       console.log this.pageID + ' new one!'
