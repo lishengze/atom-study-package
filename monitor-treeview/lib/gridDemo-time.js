@@ -187,198 +187,129 @@ function initializeChart(gridViewPointer,chartID) {
   // curChartModelSelector.hide();
 
   var updateTime = 1000;
-  var callbackDataForSet = [];
-  var callbakcDataForAdd = [];
-  setChartData(gridViewPointer,curChartModelSelector, chart, chartID, callbackDataForSet, callbakcDataForAdd);
+  setChartData(gridViewPointer,curChartModelSelector, chart, chartID);
 }
 
-function setChartDataGlobal(pageID, chartID, curChart) 
-{
-  var rtnDataName = pageID+'.'+chartID;
-
-  userApi.emitter.on (rtnDataName, function(data){
-    if (true === gridViewPointer.isClosed) {
-        return;
-    }
-
-    curChart.isNewDataCome = true;
-    var curRtnData = [tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)];
-    
-    curChart.callbackDataForSet.push(curRtnData);
-    curChart.callbakcDataForAdd.push(curRtnData);
-  });
-}
-
-function setChartData(gridViewPointer, curChartModelSelector, chart, chartID, callbackDataForSet, callbakcDataForAdd) 
-{
+function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
   var rtnDataName = gridViewPointer.pageID+'.'+chartID;
+  var dataNumb = 0;
+   gridViewPointer.aa = 1 
+  var chartDataAll = [];
+  var nonRealTimeChartData = [];
+  var RealTimeChartData = [];
+  var curChartData;
+  var testData = [];
+  var testChartDataNumb = 0;
 
-  var updateFrequency = 100;
+  var timeLimit = 10;
+  var realTimeLine = 2;
+
+  var isRealTime = false;
+  var isFirstTime = true;
+
+  var firstTime;
+  var lastTime;
+  var curTime;
+
+  var lastActive = false;
+  var curActive = false;
+  var isItemTurnToActive = false;
+
+  var updateFrequency = 500;
   var isNewDataCome = false;
   var curRtnData;
-  var addDataNumbLimit = 5;
-  var isPageActive;
-
   userApi.emitter.on (rtnDataName, function(data){
     if (true === gridViewPointer.isClosed) {
+        // console.log (gridViewPointer.pageID + ' has been closed! ');
         return;
     }
+
     isNewDataCome = true;
     curRtnData = [tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)];
-    isPageActive = window.displayItem[gridViewPointer.pageID];
-    
-    callbackDataForSet.push(curRtnData);
-    callbakcDataForAdd.push(curRtnData);
+
+    chartDataAll.push(curRtnData);
+    gridViewPointer.testData = data.MonTime;
+    testData.push(curRtnData);
+    ++testChartDataNumb;
+
+    if (true === isFirstTime) {
+      lastTime = (new Date()).toTimeString().substring(0,8);
+      firstTime = lastTime;
+      isFirstTime = false;
+    }
+
+    curActive = window.displayItem[gridViewPointer.pageID];
+    if (true !== lastActive && true === curActive) {
+      isItemTurnToActive = true;
+    } else {
+      isItemTurnToActive = false;
+    }
+    lastActive = curActive;
+
+    if (true !== curActive) {
+      console.log ('hide!');
+    }
+
+    if (true === isRealTime) {
+
+      if (true === curActive) {
+        RealTimeChartData.push(curRtnData);
+      }
+
+      if (true === isItemTurnToActive) {
+        RealTimeChartData = [];
+      }
+
+    } else {
+      ++dataNumb;
+      nonRealTimeChartData.push(curRtnData);
+
+      curTime = (new Date()).toTimeString().substring(0,8);
+
+      if ( MinusTime(curTime, lastTime) > realTimeLine ||
+          MinusTime(curTime, firstTime) > timeLimit)  {
+
+          isRealTime = true;
+          if (true === curActive) {
+            // console.log('++++SetData++++')
+
+            curChartData = [];
+            for (var i = 0; i < chartDataAll.length; ++i) {
+              curChartData.push(chartDataAll[i]);
+            }
+
+            chart.series[0].setData(curChartData);
+          }
+      } else {
+        lastTime = curTime;
+      }
+    }
+
   });
 
   setInterval(function() {
-    if (true === isNewDataCome && true === isPageActive) 
-    {
-      isNewDataCome = false;      
-      if (callbakcDataForAdd.length > addDataNumbLimit) 
-      {
-        console.log (callbakcDataForAdd.length);
+    if (true === isNewDataCome && true === curActive) {
+      isNewDataCome = false;
+
+      if ( true === isItemTurnToActive || false === isRealTime) {
+
+        // console.log ('*** setInterval ***');
+
         curChartData = [];
-        for (var i = 0; i < callbackDataForSet.length; ++i) {
-          curChartData.push(callbackDataForSet[i]);
+        for (var i = 0; i < chartDataAll.length; ++i) {
+          curChartData.push(chartDataAll[i]);
         }
-        chart.series[0].setData(curChartData);    
-        callbakcDataForAdd = [];   
-      }
-      else 
-      {
-        for (var i = 0; i < callbakcDataForAdd.length; ++i) 
-        {
-         chart.series[0].addPoint(callbakcDataForAdd[i], true, false); 
+        chart.series[0].setData(curChartData);
+
+      } else {
+        for (var i = 0; i < RealTimeChartData.length; ++i) {
+          // console.log ('----addPoint----');
+          addDataToChart(chart, RealTimeChartData[i]);
         }
-        callbakcDataForAdd = []; 
+        RealTimeChartData = [];
       }
     }
   }, updateFrequency)
-}
-
-{
-// function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
-//   var rtnDataName = gridViewPointer.pageID+'.'+chartID;
-//   var dataNumb = 0;
-//   var chartDataAll = [];
-//   var nonRealTimeChartData = [];
-//   var RealTimeChartData = [];
-//   var curChartData;
-//   var testData = [];
-//   var testChartDataNumb = 0;
-
-//   var timeLimit = 10;
-//   var realTimeLine = 2;
-
-//   var isRealTime = false;
-//   var isFirstTime = true;
-
-//   var firstTime;
-//   var lastTime;
-//   var curTime;
-
-//   var lastActive = false;
-//   var isPageActive = false;
-//   var isItemTurnToActive = false;
-
-//   var updateFrequency = 500;
-//   var isNewDataCome = false;
-//   var curRtnData;
-
-//   userApi.emitter.on (rtnDataName, function(data){
-//     if (true === gridViewPointer.isClosed) {
-//         // console.log (gridViewPointer.pageID + ' has been closed! ');
-//         return;
-//     }
-
-//     isNewDataCome = true;
-//     curRtnData = [tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)];
-
-//     chartDataAll.push(curRtnData);
-//     gridViewPointer.testData = data.MonTime;
-//     testData.push(curRtnData);
-//     ++testChartDataNumb;
-
-//     if (true === isFirstTime) {
-//       lastTime = (new Date()).toTimeString().substring(0,8);
-//       firstTime = lastTime;
-//       isFirstTime = false;
-//     }
-
-//     isPageActive = window.displayItem[gridViewPointer.pageID];
-//     if (true !== lastActive && true === isPageActive) {
-//       isItemTurnToActive = true;
-//     } else {
-//       isItemTurnToActive = false;
-//     }
-//     lastActive = isPageActive;
-
-//     if (true !== isPageActive) {
-//       console.log ('hide!');
-//     }
-
-//     if (true === isRealTime) {
-
-//       if (true === isPageActive) {
-//         RealTimeChartData.push(curRtnData);
-//       }
-
-//       if (true === isItemTurnToActive) {
-//         RealTimeChartData = [];
-//       }
-
-//     } else {
-//       ++dataNumb;
-//       nonRealTimeChartData.push(curRtnData);
-
-//       curTime = (new Date()).toTimeString().substring(0,8);
-
-//       if ( MinusTime(curTime, lastTime) > realTimeLine ||
-//           MinusTime(curTime, firstTime) > timeLimit)  {
-
-//           isRealTime = true;
-//           if (true === isPageActive) {
-//             // console.log('++++SetData++++')
-
-//             curChartData = [];
-//             for (var i = 0; i < chartDataAll.length; ++i) {
-//               curChartData.push(chartDataAll[i]);
-//             }
-
-//             chart.series[0].setData(curChartData);
-//           }
-//       } else {
-//         lastTime = curTime;
-//       }
-//     }
-
-//   });
-
-//   setInterval(function() {
-//     if (true === isNewDataCome && true === isPageActive) {
-//       isNewDataCome = false;
-
-//       if ( true === isItemTurnToActive || false === isRealTime) {
-
-//         // console.log ('*** setInterval ***');
-
-//         curChartData = [];
-//         for (var i = 0; i < chartDataAll.length; ++i) {
-//           curChartData.push(chartDataAll[i]);
-//         }
-//         chart.series[0].setData(curChartData);
-
-//       } else {
-//         for (var i = 0; i < RealTimeChartData.length; ++i) {
-//           // console.log ('----addPoint----');
-//           addDataToChart(chart, RealTimeChartData[i]);
-//         }
-//         RealTimeChartData = [];
-//       }
-//     }
-//   }, updateFrequency)
-// }
 }
 
 function tranTimeToUTC(dateString, timeString) {
@@ -474,7 +405,11 @@ function transformGridData(originalData) { // 根据XML文件映射关系,通过
 
     return transData;
 }
-
+/*
+注册实时回调监听函数，只注册一次。
+回调数据中的ObjectID，AttrType标记不同的请求。
+在接受到数据后，以ObjectID+AttrType为名将数据发送到对应请求注册的监听接口中。
+*/
 function registerRtnObjectAttrTopic() {
   if (window.registerRtnObjectAttrTopic === false) {
     userApi.emitter.on(EVENTS.RtnObjectAttrTopic, function(data){
@@ -495,15 +430,14 @@ function reqQrySubscriberFunc(objectID, attrType){ // 注册订阅信息
   reqQrySubscriberField.RequestId  = ++window.ReqQrySubscriberTopicRequestID;
   reqQrySubscriberField.rtnMessage = reqQrySubscriberData.ObjectID;
 
-  console.log (reqQrySubscriberData);
   // registerRtnObjectAttrObjectID(reqQrySubscriberField.rtnMessage);
 
   userApi.emitter.emit(EVENTS.ReqQrySubscriberTopic, reqQrySubscriberField);
 }
 
 function nodePosition(gridViewPointer) { // 根据分屏要求，确定对象位置
+  // console.log(gridViewPointer.gridID)
   if(gridViewPointer.screenSelect <= 0 || gridViewPointer.screenSelect > 4) return
-
   if(gridViewPointer.screenSelect < 4 && gridViewPointer.screenSelect > 0) {
     for(var th = 0; th < gridViewPointer.screenSelect; th ++) {
       var node = gridViewPointer.nodeQueue[th]

@@ -1,6 +1,7 @@
 SidebarIconView = require './sidebarIcon-view'
 {CompositeDisposable} = require 'atom'
 PanelView = require './panel-view.coffee'
+{RefreshChart} = require './refreshChart.js'
 window.displayItem = []
 window.Item = [];
 page = null;
@@ -30,6 +31,7 @@ module.exports =
   activate: (state) ->
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
+    RefreshChart();
     window.index = 0
     window.registerRtnObjectAttrTopic   = false;
     window.IsRspQryOidRelationTopicDone = false;
