@@ -3,16 +3,12 @@ SidebarIconView = require './sidebarIcon-view'
 PanelView = require './panel-view.coffee'
 {RefreshChart} = require './refreshChart.js'
 window.displayItem = []
-window.Item = [];
-page = null;
-
+# gridDemoUri = 'atom://gridDemo'
 creatGridDemo = (state)->
   Demo = require './gridDemoView.coffee'
-  # console.log state
-  # @p = new Demo(state)
-  window.Item[state.pageID] = new Demo(state)
- 
-
+  @p = new Demo(state)
+  # @p.getTitle state.uri
+  # @p
 window.getObjectID = (originalString) ->
   stringArray = originalString.split(".")
   transString = ""
@@ -43,17 +39,6 @@ module.exports =
         return
       window.displayItem = [];
       window.displayItem[item.pageID] = true;
-
-    atom.workspace.onDidDestroyPaneItem (event)->
-      # console.log window.Item[event.item.pageID]
-      console.log 'DestroyPaneItem!'
-      console.log event
-      # console.log window.Item[event.item.pageID].gridID
-      window.Item[event.item.pageID].isClosed = true;
-
-    atom.workspace.onDidDestroyPane (event)->
-      console.log 'DestroyPane!'
-      console.log event
 
     atom.workspace.addOpener (filePath) ->
       originalPageId = filePath.substring(("atom://gridViewDemo").length)

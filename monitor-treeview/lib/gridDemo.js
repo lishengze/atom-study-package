@@ -1,6 +1,9 @@
 _ = require('underscore-plus')
 // 属性信息展示模块
 var gridOnedata = {title : '属性列表' }
+var borderWidth = 6
+var screenLeft = 587;
+var toolbarHeight = 20.5
 // var containerLeft = 0 ; //右侧呈现chart区域的left位置
 // var containerHeight = 0 // window.innerHeight - 50
 // var screenWidth = 0; //右侧呈现chart区域宽度
@@ -9,42 +12,53 @@ var gridOnedata = {title : '属性列表' }
 // containerHeight 右侧容器高度window.innerHeight - 50
 // screenWidth  右侧呈现chart区域宽度
 // MaxMinClickedTimes
-var borderWidth = 6
-var screenLeft = 587;
-var toolbarHeight = 20.5
-// var times = 0;
-var MaxMinClickedTimes = 0;
+// screenSelect  全局参数，表示选择的分屏个数
+// times 选中属性的次数， 选中2次才生成chart
 //var toolbarHeight = 2 * parseInt($('#CPUUsageModel' + index ).css('border-width')) + $('.k-grid-toolbar').height() //计算出边框和toolbar的高度。便于设定 Highcharts高度
-var zIndex = 1 // div的 zIndex值
+// zIndex   div的 zIndex值
 // var screenSelect = 1 // 全局参数，表示选择的分屏个数
 var templateModel = kendo.template("<strong style = 'color:indianred'>#: title #  </strong>\
                   <i  class = 'gridMax fa fa-clone'></i>\
-                  <i  class = ' gridClose fa fa-times'></i>")
+                  <i  class = 'gridClose fa fa-times'></i>")
 // var gridViewPointer.nodeQueue = [] // 存储选中的属性节点信息
 // var gridViewPointer = null;
 function setup(gridViewPointer) {
-  // MaxMinClickedTimes = 0
-  // gridViewPointer = gridViewPointers;
+  gridViewPointer.zIndex = 1;
+  gridViewPointer.MaxMinClickedTimes = 0;
   gridViewPointer.times = 0
   gridViewPointer.nodeQueue = [] // 存储选中的属性节点信息
   gridViewPointer.itemsArray = []
   gridViewPointer.screenSelect = 1; // 当前页面全局参数，表示选择的分屏个数
-
-  g_GlobalChart[gridViewPointer.pageID] = [];
-  // console.log(gridViewPointer.screenSelect)
-
   var FourSplitScreenSelector = gridViewPointer.FourSplitScreen
-  gridViewPointer.containerHeight = window.innerHeight - 50
+  gridViewPointer.containerHeight = window.innerHeight - 45
   gridViewPointer.containerLeft = $(FourSplitScreenSelector).position().left + $(FourSplitScreenSelector).outerWidth() + 5;
   gridViewPointer.screenWidth = $('.baobiaoContainer').width() - gridViewPointer.containerLeft - 20
 
+  g_GlobalChart[gridViewPointer.pageID] = [];
+  
   window.configData = getConfigData();
   registerRtnObjectAttrTopic(gridViewPointer);
   initializeGrid(gridViewPointer);
   registerGridDataReceiveFunc(gridViewPointer);
-
-  SplitScreen(gridViewPointer) // 分屏操作函数
-
+  SortDivHandler.Initialize(gridViewPointer);
+  // // highcharts图表 resize操作
+  // // $('#CPUUsageModel' + index).resizable({
+  // //    // On resize, set the chart size to that of the
+  // //    // resizer minus padding. If your chart has a lot of data or other
+  // //    // content, the redrawing might be slow. In that case, we recommend
+  // //    // that you use the 'stop' event instead of 'resize'.
+  // //    resize: function() {
+  // //        console.log($(this))
+  // //        var chartNode = $(this).find('#CPUUsage' + index)
+  // //        var chart = $(chartNode).highcharts()
+  // //        console.log(chart)
+  // //        chart.setSize(
+  // //            $(this).width() - 20,
+  // //            $(this).height() - 20,
+  // //            false
+  // //        );
+  // //    }
+  // });
 }
 
 function registerGridDataReceiveFunc(gridViewPointer) {
@@ -94,7 +108,6 @@ function initializeGrid(gridViewPointer) { // 初始化 grid 属性列表 表格
         }
         if(isItemHasBeenChoosen === false) {  // 如果该对象注册过，那么不再执行后面的注册函数,避免一个属性注册多次双击事件
           gridViewPointer.itemsArray.push(selectedText)
-         // console.log($(selectedRows[0].parentNode)[0].lastChild.textContent)
           selectedRows.dblclick(function(e) {
             var objectID = gridViewPointer.pageID;
             var HoldObjectID = selectedText;
@@ -103,14 +116,15 @@ function initializeGrid(gridViewPointer) { // 初始化 grid 属性列表 表格
               reqQrySubscriberFunc(objectID, HoldObjectID);
               gridViewPointer.ChartItem[HoldObjectID] = true;
             }
-
             selectedNode = gridViewPointer.chartData.find($('#'+ selectedText + gridViewPointer.gridID + 'Model'))
+            if($(selectedNode).is(':hidden') === true) { // 如果某一个属性打开过，又被关闭，那么再次打开执行显示操作
+              $(selectedNode).show()
+            }
             gridViewPointer.nodeQueue.unshift(selectedNode)
-            //  console.log(gridViewPointer.screenSelect)
             // console.log(selectedNode)
-             nodePosition(gridViewPointer)
-             eventProcess(selectedNode)
-            //  console.log('event')
+            nodePosition(gridViewPointer,false)
+            // eventProcess(selectedNode)
+            // console.log('event')
             // SortDivHandler.Initialize();
           })
         }
@@ -119,15 +133,53 @@ function initializeGrid(gridViewPointer) { // 初始化 grid 属性列表 表格
     selectable: "multiple cell",
     sortable: true
   });
-
+  // gridSelector.bind('change',  registerGridItemDblClickFunc(gridViewPointer))
   $(gridSelector).outerWidth($(gridViewPointer.FourSplitScreen).position().left +  $(gridViewPointer.FourSplitScreen).outerWidth())
   $(gridSelector).height(window.innerHeight - $(gridViewPointer.FourSplitScreen).offset().top - $(gridViewPointer.FourSplitScreen).outerHeight() - 20)
+  // console.log($(gridSelector).css('z-index'))
+  $(gridSelector).css('z-index', 0) // 左侧属性列表初始z-index 值设为 0
   containerLeft = $(gridSelector).width() + 15;
 }
 
+// function registerGridItemDblClickFunc(e, gridViewPointer) { // 生成选中的属性 对应的chart 对象
+//   times ++
+//   var selectedRows = this.select();
+//   if( times % 2 === 1) {
+//     var selectedNode = null;
+//     var selectedText = $(selectedRows[0].parentNode)[0].lastChild.textContent; // 如果选中的为指标名称，自动转为指标ID
+//     var isItemHasBeenChoosen = false
+//     for(var i = 0; i < gridViewPointer.itemsArray.length; i ++){
+//       if(selectedText === gridViewPointer.itemsArray[i]){
+//         isItemHasBeenChoosen =  true
+//         break
+//       }
+//     }
+//     if(isItemHasBeenChoosen === false) {  // 如果该对象注册过，那么不再执行后面的注册函数,避免一个属性注册多次双击事件
+//       gridViewPointer.itemsArray.push(selectedText)
+//      // console.log($(selectedRows[0].parentNode)[0].lastChild.textContent)
+//       selectedRows.dblclick(function(e) {
+//         var objectID = gridViewPointer.pageID;
+//         var HoldObjectID = selectedText;
+//         if (gridViewPointer.ChartItem[HoldObjectID] !== true) {
+//           initializeChart(gridViewPointer, HoldObjectID);
+//           reqQrySubscriberFunc(gridViewPointer, objectID, HoldObjectID);
+//           gridViewPointer.ChartItem[HoldObjectID] = true;
+//         }
+//         selectedNode = gridViewPointer.chartData.find($('#'+ selectedText + gridViewPointer.gridID + 'Model'))
+//         gridViewPointer.nodeQueue.unshift(selectedNode)
+//         // console.log(times)
+//         //  console.log(gridViewPointer.nodeQueue)
+//          console.log(gridViewPointer.screenSelect)
+//          nodePosition(gridViewPointer,gridViewPointer.screenSelect)
+//         // SortDivHandler.Initialize();
+//       })
+//     }
+//   }
+// }
+
 function initializeChart(gridViewPointer,chartID) {
   var gridHtml = "<div id=\"" + chartID + gridViewPointer.gridID + "Model\" class=\" UsageModel AttrItem\">\
-                  <div id=\"" + chartID + gridViewPointer.gridID + "Toolbar\"  class=\" toolbar k-grid-toolbar\"></div>\
+                  <div id=\"" + chartID + gridViewPointer.gridID + "Toolbar\" class=\" toolbar k-grid-toolbar\"></div>\
                   <div id=\"" + chartID + gridViewPointer.gridID + "\" class = 'highstockChart' ></div></div>"
 
   gridViewPointer.chartData.append(gridHtml);
@@ -138,11 +190,11 @@ function initializeChart(gridViewPointer,chartID) {
   var curChartToolbarSelector = $(gridViewPointer.chartData.find('#'+chartID + gridViewPointer.gridID+'Toolbar'));
   var highchartsToolbar = {title : chartID}
   curChartToolbarSelector.html(templateModel(highchartsToolbar));
-  curChartSelector.css('z-index', 1)
+  curChartModelSelector.css('z-index', 1)
   curChartSelector.highcharts('StockChart', {
     chart: {
       animation: false,
-      marginTop: 30,
+      marginTop: 0,
       zoomType: 'xy'
       },
       // height : window.innerHeight - 50,
@@ -156,7 +208,7 @@ function initializeChart(gridViewPointer,chartID) {
           enabled: false
       },
       yAxis: {
-        max: 20, // 控制Y轴最大值，设成101是为了能显示100的grid
+        max: 50, // 控制Y轴最大值，设成101是为了能显示100的grid
         min: 0, // 设定y轴最小值
         // minTickInterval: 0,
         // tickAmount: 6, // 控制y轴标线的个数
@@ -183,21 +235,15 @@ function initializeChart(gridViewPointer,chartID) {
       })
 
   var chart = curChartSelector.highcharts();
-  // chart.turboThreshold = 40000;
-  // chart.setSize(curChartModelSelector.width(), curChartModelSelector.height() - toolbarHeight, false);
-  // curChartModelSelector.hide();
   
-  var callbackDataForSet = [];
-  var callbakcDataForAdd = [];
-  setChartData(gridViewPointer,curChartModelSelector, chart, chartID, callbackDataForSet, callbakcDataForAdd);
-
-  g_GlobalChart[pageID][chartID] = new g_chartDataStruct();
-  setChartDataGlobal(gridViewPointer.pageID, chartID, g_GlobalChart[pageID][chartID] ) 
+  g_GlobalChart[gridViewPointer.pageID][chartID] = new g_chartDataStruct();
+  g_GlobalChart[gridViewPointer.pageID][chartID].chart = chart;
+  setChartDataGlobal(gridViewPointer, chartID, g_GlobalChart[gridViewPointer.pageID][chartID] ) 
 }
 
-function setChartDataGlobal(pageID, chartID, curChart) 
+function setChartDataGlobal(gridViewPointer, chartID, curChart) 
 {
-  var rtnDataName = pageID+'.'+chartID;
+  var rtnDataName = gridViewPointer.pageID+'.'+chartID;
 
   userApi.emitter.on (rtnDataName, function(data){
     if (true === gridViewPointer.isClosed) {
@@ -210,178 +256,6 @@ function setChartDataGlobal(pageID, chartID, curChart)
     curChart.callbackDataForSet.push(curRtnData);
     curChart.callbakcDataForAdd.push(curRtnData);
   });
-}
-
-function setChartData(gridViewPointer, curChartModelSelector, chart, chartID, callbackDataForSet, callbakcDataForAdd) 
-{
-  var rtnDataName = gridViewPointer.pageID+'.'+chartID;
-
-  var updateFrequency = 100;
-  var isNewDataCome = false;
-  var curRtnData;
-  var addDataNumbLimit = 5;
-  var isPageActive;
-
-  userApi.emitter.on (rtnDataName, function(data){
-    if (true === gridViewPointer.isClosed) {
-        return;
-    }
-    isNewDataCome = true;
-    curRtnData = [tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)];
-    isPageActive = window.displayItem[gridViewPointer.pageID];
-    
-    callbackDataForSet.push(curRtnData);
-    callbakcDataForAdd.push(curRtnData);
-  });
-
-  setInterval(function() {
-    if (true === isNewDataCome && true === isPageActive) 
-    {
-      isNewDataCome = false;      
-      if (callbakcDataForAdd.length > addDataNumbLimit) 
-      {
-        console.log (callbakcDataForAdd.length);
-        curChartData = [];
-        for (var i = 0; i < callbackDataForSet.length; ++i) {
-          curChartData.push(callbackDataForSet[i]);
-        }
-        chart.series[0].setData(curChartData);    
-        callbakcDataForAdd = [];   
-      }
-      else 
-      {
-        for (var i = 0; i < callbakcDataForAdd.length; ++i) 
-        {
-         chart.series[0].addPoint(callbakcDataForAdd[i], true, false); 
-        }
-        callbakcDataForAdd = []; 
-      }
-    }
-  }, updateFrequency)
-}
-
-{
-// function setChartData(gridViewPointer, curChartModelSelector, chart, chartID) {
-//   var rtnDataName = gridViewPointer.pageID+'.'+chartID;
-//   var dataNumb = 0;
-//   var chartDataAll = [];
-//   var nonRealTimeChartData = [];
-//   var RealTimeChartData = [];
-//   var curChartData;
-//   var testData = [];
-//   var testChartDataNumb = 0;
-
-//   var timeLimit = 10;
-//   var realTimeLine = 2;
-
-//   var isRealTime = false;
-//   var isFirstTime = true;
-
-//   var firstTime;
-//   var lastTime;
-//   var curTime;
-
-//   var lastActive = false;
-//   var isPageActive = false;
-//   var isItemTurnToActive = false;
-
-//   var updateFrequency = 500;
-//   var isNewDataCome = false;
-//   var curRtnData;
-
-//   userApi.emitter.on (rtnDataName, function(data){
-//     if (true === gridViewPointer.isClosed) {
-//         // console.log (gridViewPointer.pageID + ' has been closed! ');
-//         return;
-//     }
-
-//     isNewDataCome = true;
-//     curRtnData = [tranTimeToUTC(data.MonDate, data.MonTime), parseFloat(data.AttrValue)];
-
-//     chartDataAll.push(curRtnData);
-//     gridViewPointer.testData = data.MonTime;
-//     testData.push(curRtnData);
-//     ++testChartDataNumb;
-
-//     if (true === isFirstTime) {
-//       lastTime = (new Date()).toTimeString().substring(0,8);
-//       firstTime = lastTime;
-//       isFirstTime = false;
-//     }
-
-//     isPageActive = window.displayItem[gridViewPointer.pageID];
-//     if (true !== lastActive && true === isPageActive) {
-//       isItemTurnToActive = true;
-//     } else {
-//       isItemTurnToActive = false;
-//     }
-//     lastActive = isPageActive;
-
-//     if (true !== isPageActive) {
-//       console.log ('hide!');
-//     }
-
-//     if (true === isRealTime) {
-
-//       if (true === isPageActive) {
-//         RealTimeChartData.push(curRtnData);
-//       }
-
-//       if (true === isItemTurnToActive) {
-//         RealTimeChartData = [];
-//       }
-
-//     } else {
-//       ++dataNumb;
-//       nonRealTimeChartData.push(curRtnData);
-
-//       curTime = (new Date()).toTimeString().substring(0,8);
-
-//       if ( MinusTime(curTime, lastTime) > realTimeLine ||
-//           MinusTime(curTime, firstTime) > timeLimit)  {
-
-//           isRealTime = true;
-//           if (true === isPageActive) {
-//             // console.log('++++SetData++++')
-
-//             curChartData = [];
-//             for (var i = 0; i < chartDataAll.length; ++i) {
-//               curChartData.push(chartDataAll[i]);
-//             }
-
-//             chart.series[0].setData(curChartData);
-//           }
-//       } else {
-//         lastTime = curTime;
-//       }
-//     }
-
-//   });
-
-//   setInterval(function() {
-//     if (true === isNewDataCome && true === isPageActive) {
-//       isNewDataCome = false;
-
-//       if ( true === isItemTurnToActive || false === isRealTime) {
-
-//         // console.log ('*** setInterval ***');
-
-//         curChartData = [];
-//         for (var i = 0; i < chartDataAll.length; ++i) {
-//           curChartData.push(chartDataAll[i]);
-//         }
-//         chart.series[0].setData(curChartData);
-
-//       } else {
-//         for (var i = 0; i < RealTimeChartData.length; ++i) {
-//           // console.log ('----addPoint----');
-//           addDataToChart(chart, RealTimeChartData[i]);
-//         }
-//         RealTimeChartData = [];
-//       }
-//     }
-//   }, updateFrequency)
-// }
 }
 
 function tranTimeToUTC(dateString, timeString) {
@@ -477,7 +351,11 @@ function transformGridData(originalData) { // 根据XML文件映射关系,通过
 
     return transData;
 }
-
+/*
+注册实时回调监听函数，只注册一次。
+回调数据中的ObjectID，AttrType标记不同的请求。
+在接受到数据后，以ObjectID+AttrType为名将数据发送到对应请求注册的监听接口中。
+*/
 function registerRtnObjectAttrTopic() {
   if (window.registerRtnObjectAttrTopic === false) {
     userApi.emitter.on(EVENTS.RtnObjectAttrTopic, function(data){
@@ -498,112 +376,86 @@ function reqQrySubscriberFunc(objectID, attrType){ // 注册订阅信息
   reqQrySubscriberField.RequestId  = ++window.ReqQrySubscriberTopicRequestID;
   reqQrySubscriberField.rtnMessage = reqQrySubscriberData.ObjectID;
 
-  console.log (reqQrySubscriberData);
   // registerRtnObjectAttrObjectID(reqQrySubscriberField.rtnMessage);
 
   userApi.emitter.emit(EVENTS.ReqQrySubscriberTopic, reqQrySubscriberField);
 }
 
-function nodePosition(gridViewPointer) { // 根据分屏要求，确定对象位置
+function nodePosition(gridViewPointer, isKeepVisable) { // 根据分屏要求，确定对象位置；isKeepVisable 表示，如果是isKeepVisable 保持节点原本的显示属性
+  // console.log(gridViewPointer.gridID)
   if(gridViewPointer.screenSelect <= 0 || gridViewPointer.screenSelect > 4) return
-
   if(gridViewPointer.screenSelect < 4 && gridViewPointer.screenSelect > 0) {
     for(var th = 0; th < gridViewPointer.screenSelect; th ++) {
       var node = gridViewPointer.nodeQueue[th]
-      // console.log(node)
       if(true === $(node).hasClass('UsageModel')) {
-        $(node).show().css({'top' : gridViewPointer.containerHeight* th / gridViewPointer.screenSelect + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth + borderWidth, 'height' : gridViewPointer.containerHeight/ gridViewPointer.screenSelect + borderWidth - 15})
+        $(node).css({'top' : gridViewPointer.containerHeight* th / gridViewPointer.screenSelect + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth + borderWidth, 'height' : gridViewPointer.containerHeight/ gridViewPointer.screenSelect + borderWidth - 15})
         var chart = $(node).find('.highstockChart').highcharts()
         chart.setSize($(node).width() , $(node).height() - toolbarHeight, false );
       } else {
-        $(node).show().css({'top' : gridViewPointer.containerHeight* th / gridViewPointer.screenSelect + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth, 'height' : gridViewPointer.containerHeight/ gridViewPointer.screenSelect - 15})
+        $(node).css({'top' : gridViewPointer.containerHeight* th / gridViewPointer.screenSelect + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth, 'height' : gridViewPointer.containerHeight/ gridViewPointer.screenSelect - 15})
       }
     }
   } else if (gridViewPointer.screenSelect === 4) {
    var node = gridViewPointer.nodeQueue[0]
    if(true === $(node).hasClass('UsageModel')) {
-     $(node).show().css({'top' : 0 + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth / 2 + borderWidth - 15, 'height' : gridViewPointer.containerHeight / 2 + borderWidth - 15})
+     $(node).css({'top' : 0 + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth / 2 + borderWidth - 15, 'height' : gridViewPointer.containerHeight / 2 + borderWidth - 15})
      var chart = $(node).find('.highstockChart').highcharts()
      chart.setSize($(node).width(), $(node).height() - toolbarHeight  , false);
    } else {
-     $(node).show().css({'top' : 0 + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth / 2 - 15 , 'height' : gridViewPointer.containerHeight / 2 - 15})
+     $(node).css({'top' : 0 + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth / 2 - 15 , 'height' : gridViewPointer.containerHeight / 2 - 15})
    }
    var node = gridViewPointer.nodeQueue[1]
    if(true === $(node).hasClass('UsageModel')) {
-     $(node).show().css({'top' : 0 + 5, 'left' : gridViewPointer.containerLeft + gridViewPointer.screenWidth / 2 - 5, 'width' : gridViewPointer.screenWidth / 2 + borderWidth - 15, 'height' : gridViewPointer.containerHeight / 2 + borderWidth - 15})
+     $(node).css({'top' : 0 + 5, 'left' : gridViewPointer.containerLeft + gridViewPointer.screenWidth / 2 - 5, 'width' : gridViewPointer.screenWidth / 2 + borderWidth - 15, 'height' : gridViewPointer.containerHeight / 2 + borderWidth - 15})
      var chart = $(node).find('.highstockChart').highcharts()
      chart.setSize($(node).width(), $(node).height() - toolbarHeight  , false);
    } else {
-     $(node).show().css({'top' : 0 + 5, 'left' : gridViewPointer.containerLeft + gridViewPointer.screenWidth / 2 - 5, 'width' : gridViewPointer.screenWidth / 2 - 15, 'height' : gridViewPointer.containerHeight / 2 - 15})
+     $(node).css({'top' : 0 + 5, 'left' : gridViewPointer.containerLeft + gridViewPointer.screenWidth / 2 - 5, 'width' : gridViewPointer.screenWidth / 2 - 15, 'height' : gridViewPointer.containerHeight / 2 - 15})
    }
    var node = gridViewPointer.nodeQueue[2]
    if(true === $(node).hasClass('UsageModel')) {
-     $(node).show().css({'top' : gridViewPointer.containerHeight / 2 + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth / 2 + borderWidth - 15, 'height' : gridViewPointer.containerHeight / 2 + borderWidth - 15})
+     $(node).css({'top' : gridViewPointer.containerHeight / 2 + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth / 2 + borderWidth - 15, 'height' : gridViewPointer.containerHeight / 2 + borderWidth - 15})
      var chart = $(node).find('.highstockChart').highcharts()
      chart.setSize($(node).width(), $(node).height() - toolbarHeight  , false );
    } else {
-     $(node).show().css({'top' : gridViewPointer.containerHeight / 2 + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth / 2 - 15, 'height' : gridViewPointer.containerHeight / 2 - 15})
+     $(node).css({'top' : gridViewPointer.containerHeight / 2 + 5, 'left' : gridViewPointer.containerLeft, 'width' : gridViewPointer.screenWidth / 2 - 15, 'height' : gridViewPointer.containerHeight / 2 - 15})
    }
    var node = gridViewPointer.nodeQueue[3]
    if(true === $(node).hasClass('UsageModel')) {
-     $(node).show().css({'top' : gridViewPointer.containerHeight / 2 + 5, 'left' : gridViewPointer.containerLeft + gridViewPointer.screenWidth / 2 - 5, 'width' : gridViewPointer.screenWidth / 2 + borderWidth - 15, 'height' : gridViewPointer.containerHeight / 2 + borderWidth - 15})
+     $(node).css({'top' : gridViewPointer.containerHeight / 2 + 5, 'left' : gridViewPointer.containerLeft + gridViewPointer.screenWidth / 2 - 5, 'width' : gridViewPointer.screenWidth / 2 + borderWidth - 15, 'height' : gridViewPointer.containerHeight / 2 + borderWidth - 15})
      var chart = $(node).find('.highstockChart').highcharts()
      chart.setSize($(node).width(), $(node).height() - toolbarHeight  , false );
    } else {
-     $(node).show().css({'top' : gridViewPointer.containerHeight / 2 + 5, 'left' : gridViewPointer.containerLeft + gridViewPointer.screenWidth / 2 - 5, 'width' : gridViewPointer.screenWidth / 2 - 15, 'height' : gridViewPointer.containerHeight / 2 - 15})
+     $(node).css({'top' : gridViewPointer.containerHeight / 2 + 5, 'left' : gridViewPointer.containerLeft + gridViewPointer.screenWidth / 2 - 5, 'width' : gridViewPointer.screenWidth / 2 - 15, 'height' : gridViewPointer.containerHeight / 2 - 15})
    }
- }
- // 将不展示的属性隐藏
- // 方法为： 将数组中 gridViewPointer.screenSelect之后的 属性全部隐藏。再将前 gridViewPointer.screenSelect 个数据展示出来 这样可以避免前后相同的数据被隐藏 , 如 [A,B,C,D,A] gridViewPointer.screenSelect为 4
- for(var i = gridViewPointer.screenSelect; i < gridViewPointer.nodeQueue.length; i ++) {
-   $(gridViewPointer.nodeQueue[i]).hide()
- }
- for(var j = 0; j < gridViewPointer.screenSelect; j++) {
-   $(gridViewPointer.nodeQueue[j]).show()
- }
+  }
+  if(isKeepVisable === false) {
+    // 将不展示的属性隐藏
+    // 方法为： 将数组中 gridViewPointer.screenSelect之后的 属性全部隐藏。
+    // 再将前 gridViewPointer.screenSelect 个数据展示出来 这样可以避免前后相同的数据被隐藏
+    // 如 [A,B,C,D,A] gridViewPointer.screenSelect为 4
+    for(var i = gridViewPointer.screenSelect; i < gridViewPointer.nodeQueue.length; i ++) {
+      $(gridViewPointer.nodeQueue[i]).hide()
+    }
+    for(var j = 0; j < gridViewPointer.screenSelect; j++) {
+      $(gridViewPointer.nodeQueue[j]).show()
+    }
+  }
 
+//  for(var i = num; i < gridViewPointer.nodeQueue.length; i ++) {
+//    var flag = 0
+//    for(var j = 0; j <num; j++) {
+//      if(gridViewPointer.nodeQueue[i] === gridViewPointer.nodeQueue[j]) {
+//        flag = 1
+//        break
+//      }
+//    }
+//    if(flag !== 1) {
+//      console.log(gridViewPointer.nodeQueue[i])
+//      $(gridViewPointer.nodeQueue[i]).hide()
+//    }
+//  }
 }
-
-function SplitScreen(gridViewPointer) { //分屏操作
-  $(gridViewPointer.ASplitScreen).click(function(e){
-    console.log(gridViewPointer.gridID)
-    gridViewPointer.screenSelect = 1
-    nodePosition(gridViewPointer)
-  })
-  $(gridViewPointer.BinaryScreen).click(function(e){
-    console.log(gridViewPointer.gridID)
-    gridViewPointer.screenSelect = 2
-    nodePosition(gridViewPointer)
-  })
-  $(gridViewPointer.ThreeSplitScreen).click(function(e){
-    gridViewPointer.screenSelect = 3
-    nodePosition(gridViewPointer)
-  })
-  $(gridViewPointer.FourSplitScreen).click(function(e){
-    console.log(gridViewPointer.gridID)
-    gridViewPointer.screenSelect = 4
-    nodePosition(gridViewPointer)
-  })
-  // $('.SplitScreenBtn').click(function(e) {
-  //   console.log($(this))
-  //   // console.log('BinaryScreen' + gridViewPointer.gridID)
-  //   console.log(this.id === 'BinaryScreen' + gridViewPointer.gridID)
-  //   if(this.id === 'BinaryScreen' + gridViewPointer.gridID) {
-  //     screenSelect = 2
-  //     nodePosition(screenSelect)
-  //   } else if(this.id === 'ThreeSplitScreen' + gridViewPointer.gridID) {
-  //     screenSelect = 3
-  //     nodePosition(screenSelect)
-  //   } else if(this.id === 'FourSplitScreen' + gridViewPointer.gridID) {
-  //     screenSelect = 4
-  //     nodePosition(screenSelect)
-  //   } else {
-  //     screenSelect = 1
-  //     nodePosition(screenSelect)
-  //   }
-  // })
-}
-
 var SortDivHandler = {
   CurrentLocationX: 0,
   CurrentLocationY: 0,
@@ -611,11 +463,11 @@ var SortDivHandler = {
   CurrentSortDiv: null,
   CurrentZindex: 0,
   CurrentSortMove: 0,
-  Initialize: function() {
+  Initialize: function(gridViewPointer) {
     var isStart = false;
     var isDrag = true;
-    $('.k-grid-toolbar').mousedown(function(e) {
-      console.log($(this))
+    $(gridViewPointer).delegate('.k-grid-toolbar','mousedown',function(e) {
+      // console.log($(this))
       var SortTarget = $(this).parent();
       SortDivHandler.CurrentSortMove = 0;
       SortDivHandler.CurrentSortDiv = $(this);
@@ -648,7 +500,7 @@ var SortDivHandler = {
         $(currentTarget).css("opacity", 1).css('z-index', SortDivHandler.CurrentZindex);
       });
     })
-    $(".k-grid-toolbar").mousemove(function() {
+    $('.baobiaoContainer').delegate(".k-grid-toolbar",'mousemove',function() {
       // console.log($(this).parent().attr("id"))
       var thisParent = $(this).parent()
       if (isStart == false) return;
@@ -681,19 +533,17 @@ var SortDivHandler = {
       }
       // }
     });
-    $(".k-grid-toolbar").mouseup(function() {
+    $('.baobiaoContainer').delegate(".k-grid-toolbar",'mouseup',function() {
       if (isDrag == false) return;
       SortDivHandler.CurrentSortMove = 1;
     });
   }
 }
-
 function eventProcess(selectedNode) { //事件操作
-  SortDivHandler.Initialize() // 带有div位置交换的 鼠标移动操作
+  // SortDivHandler.Initialize() // 带有div位置交换的 鼠标移动操作
   // mouseEventProcess() //鼠标移动操作
   clickEventProcess(selectedNode)
 }
-
 function mouseEventProcess() {
    //// 鼠标拖拽操作
   var dragging = false
@@ -701,8 +551,9 @@ function mouseEventProcess() {
   $(".k-grid-toolbar").mousedown(function(e) {
     dragging = true
     node = $(this).parent()
+    console.log(node)
     // var nodeLeft = window.innerWidth - $('.baobiaoContainer').width() -$('.tree-view-resize-handle').width()/2
-    $(node).css('z-index', ++ zIndex)
+    $(node).css('z-index', ++ gridViewPointer.zIndex)
     iDiffX = e.pageX - $(this).offset().left
     iDiffY = e.pageY - $(this).offset().top
     return false
@@ -719,31 +570,6 @@ function mouseEventProcess() {
     dragging = false
   })
 }
-
-function clickEventProcess(selectedNode) {
-  var nodeCurPosition = []
-  document.onclick = function(e) { //将鼠标点击的属性对象放置最上层
-    $(e.target).parents('.AttrItem').css('z-index',  ++ zIndex)
-  }
-  $(selectedNode).find('.gridClose').click(function(e) { //关闭
-    console.log($(this).parent().parent())
-    var node = $(this).parent().parent()
-    $(node).hide()
-  })
-  $(selectedNode).find('.k-grid-toolbar').dblclick(function(nodeCurPosition) { //toolbar 双击操作
-    MaxMinClickedTimes ++
-    // console.log('dblclick')
-    var node = $(this).parent()
-    console.log(node)
-    resizeNode(node)
-  })
-  $(selectedNode).find('.gridMax').click(function(nodeCurPosition) { //放大缩小
-    MaxMinClickedTimes ++
-    var node = $(this).parent().parent()
-    resizeNode(node)
-  })
-}
-
 function windowResizeEvent(currentGridViewPointer) {
    /* 每次打开一个tab页，都会注册resize监听函数，当 window 大小重置时，所有页面都会执行resize操作
      当执行resize操作时，要重新计算属性列表的长宽。而测试发现，非当前页面的FourSplitScreen button position值为 0
@@ -766,22 +592,19 @@ function windowResizeEvent(currentGridViewPointer) {
   //   nodePosition(currentGridViewPointer,screenSelect)
   // })
 }
-
-function resizeNode(node) {
+function resizeNode(gridViewPointer,node) {
   // var toolbarHeight = 2 * parseInt($('#CPUUsageModel' + index ).css('border-width')) + $('.k-grid-toolbar').height() //计算出边框和toolbar的高度。便于设定 Highcharts高度
   var nodeMaxWidth = $('.baobiaoContainer').width() - 10
-  var nodeMaxHeight = window.innerHeight - 50
+  var nodeMaxHeight = window.innerHeight - 45
   var nodeRight = window.pageYOffset + $('.tab-bar').height()
-  $(node).css('z-index', ++ zIndex)
-  if (MaxMinClickedTimes % 2 === 1) { // 保存当前的位置和长宽
+  $(node).css('z-index', ++ gridViewPointer.zIndex)
+  if (gridViewPointer.MaxMinClickedTimes % 2 === 1 ) { // 保存当前的位置和长宽
     nodeCurPosition =  $(node).position()
     nodeWidth = $(node).width()
     nodeHeight = $(node).height()
+    gridViewPointer.isResize = false
   }
-  // console.log(nodeMaxWidth)
-  // console.log($(node).width())
   if (nodeMaxWidth !==  $(node).width()) { //最大化
-    // console.log('最大化')
     $(node).css({ "left": 0, "top": 0 })
     $(node).width(nodeMaxWidth)
     $(node).height(nodeMaxHeight)
@@ -796,10 +619,99 @@ function resizeNode(node) {
      if (true === $(node[0]).hasClass('UsageModel')) {
        var chart = $(node[0]).find('.highstockChart').highcharts()
        chart.setSize(nodeWidth, nodeHeight - toolbarHeight , false );
-      //  console.log(toolbarHeight)
      }
   }
 }
+// var SortDivHandler = {
+//   CurrentLocationX: 0,
+//   CurrentLocationY: 0,
+//   CurrentSortFlag: 0,
+//   CurrentSortDiv: null,
+//   CurrentZindex: 0,
+//   CurrentSortMove: 0,
+//   Initialize: function() {
+//     var isStart = false;
+//     var isDrag = false;
+//     var currentTarget = null;
+//     var currentDisX = 0;
+//     var currentDisY = 0;
+//     var HandlerParent = null;
+//     $('.k-grid-toolbar').mousedown(function(e) {
+//       var SortTarget = $(this).parent();
+//       SortDivHandler.CurrentSortMove = 0;
+//       SortDivHandler.CurrentSortDiv = $(this).parent();
+//       SortDivHandler.CurrentZindex = $(this).parents('.AttrItem').css('z-index')
+//       isDrag = true;
+//       SortDivHandler.CurrentLocationX = SortTarget.position().left;
+//       SortDivHandler.CurrentLocationY = SortTarget.position().top;
+//       SortTarget.attr("drag", 1);
+//       currentTarget = SortTarget;
+//       currentDisX = e.pageX - $(this).offset().left;
+//       currentDisY = e.pageY - $(this).offset().top;
+//     })
+//     $(document).mousemove(function(event) {
+//       if(isDrag) {
+//         console.log('move in down')
+//         // console.log(currentTarget)
+//         // console.log('drag : ' + $(currentTarget).attr("drag"))
+//         // console.log('value : ' + SortDivHandler.CurrentSortMove)
+//         if ($(currentTarget).attr("drag") == 0 || SortDivHandler.CurrentSortMove == 1) return;
+//         // if(SortDivHandler.CurrentSortDiv.hasClass('gridOne') === false) //若为属性列表，则zindex不变
+//         SortDivHandler.CurrentSortDiv.css("z-index", 0).css("opacity", 0.6);
+//         var nodeLeft = window.innerWidth - $('.baobiaoContainer').width() - $('.tree-view-resize-handle').width()/2 // left 位置
+//         var currentX = event.clientX;
+//         var currentY = event.clientY;
+//         var cursorX = event.pageX - currentDisX; // $(this).offset().left;
+//         var cursorY = event.pageY - currentDisY; //-$(this).offset().top;
+//         $(currentTarget).css("top", cursorY - $('.tab-bar').height() - 3 + "px").css("left", cursorX - nodeLeft + "px");
+//         // console.log('isStart is true')
+//         isStart = true;
+//       }
+//     });
+//     // $(document).mouseup(function() {
+//     //   // if(isDrag==false)return;
+//     //   $(currentTarget).attr("drag", 0);
+//     //   $(currentTarget).css("opacity", 1).css('z-index', SortDivHandler.CurrentZindex);
+//     // });
+//   $(".k-grid-toolbar").mousemove(function() {
+//       // console.log($(this).parent().attr("id"))
+//       var thisParent = $(this).parent()
+//       // console.log(thisParent)
+//       if (isStart == false) return;
+//           // if (SortDivHandler.CurrentSortFlag == 0) {
+//       if (thisParent.attr("id") == SortDivHandler.CurrentSortDiv.attr("id")) {
+//         // console.log('same id')
+//         return;
+//       } else {
+//         if (SortDivHandler.CurrentSortMove == 1) return;
+//         // console.log(SortDivHandler)
+//         SortDivHandler.CurrentSortMove = 1;
+//         var targetX = thisParent.position().left;
+//         var targetY = thisParent.position().top;
+//         SortDivHandler.CurrentSortDiv.stop(true).animate({
+//           left: targetX  + "px",
+//           top: targetY + "px"
+//         }, 500, function() {
+//           // console.log(SortDivHandler.CurrentSortDiv.parent().css('left'))
+//           $(this).css("opacity", 1).css('z-index', SortDivHandler.CurrentZindex);
+//         });
+//         $(this).parent().stop(true).animate({
+//           left: SortDivHandler.CurrentLocationX  + "px",
+//           top: SortDivHandler.CurrentLocationY  + "px"
+//         }, 300, function() {});
+//         isDrag = false;
+//       }
+//       // }
+//     });
+//
+//     $(document).mouseup(function() {
+//       $(currentTarget).attr("drag", 0);
+//       $(currentTarget).css("opacity", 1).css('z-index', SortDivHandler.CurrentZindex);
+//       if (isDrag == false) return;
+//       SortDivHandler.CurrentSortMove = 1;
+//     });
+//   }
+// }
 
 function initialDataGenerator() { // 构建初始随机值
   var Mydata = []
@@ -813,6 +725,6 @@ function initialDataGenerator() { // 构建初始随机值
   }
   return Mydata
 }
-
 module.exports.setup = setup
 module.exports.nodePosition = nodePosition
+module.exports.resizeNode = resizeNode

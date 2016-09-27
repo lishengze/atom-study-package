@@ -66,6 +66,7 @@ beginReceiveData = (@TreeviewList, @menu)->
     change: (e) ->
   ).data('kendoTreeView')
 
+  console.log 'begin receive data'
   MenuNode = @menu
   $(MenuNode).kendoContextMenu
     target: treeViewNode

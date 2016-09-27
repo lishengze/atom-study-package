@@ -2,13 +2,14 @@ function ChartDataStruct(){
   this.isNewDataCome = false;
   this.callbackDataForSet = [];
   this.callbakcDataForAdd = [];
+	this.chart = null;
 }
 
 window.g_chartDataStruct = ChartDataStruct;
 window.g_GlobalChart = []; // 每次建立图表时，便可记录
 window.g_ChartConfig = {
 	addDataNumbLimit: 5,
-	updateFrequency: 100
+	updateFrequency: 1000
 }
 
 function RefreshChart () 
@@ -18,6 +19,7 @@ function RefreshChart ()
 	{
 	  if (true === window.displayItem[pageID]) 
 		{
+			console.log ('pageID: ' + pageID);
 			for (charID in g_GlobalChart[pageID] ) 
 			{
 				var curChart = g_GlobalChart[pageID][charID];
@@ -26,13 +28,14 @@ function RefreshChart ()
 					curChart.isNewDataCome = false;      
 					if (curChart.callbakcDataForAdd.length > g_ChartConfig.addDataNumbLimit) 
 					{
-						console.log (curChart.callbakcDataForAdd.length);
+						
 						var curChartData = [];
 						for (var i = 0; i < curChart.callbackDataForSet.length; ++i) 
 						{
 							curChartData.push(curChart.callbackDataForSet[i]);
 						}
-						chart.series[0].setData(curChartData);    
+						curChart.chart.series[0].setData(curChartData);    
+						console.log (pageID + '.' + charID + ': ' + curChart.callbakcDataForAdd.length);
 						curChart.callbakcDataForAdd = [];   
 					}
 					else 
