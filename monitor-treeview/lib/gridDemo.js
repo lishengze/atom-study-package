@@ -30,6 +30,7 @@ function setup(gridViewPointer) {
   gridViewPointer.itemsArray = []
   gridViewPointer.screenSelect = 1; // 当前页面全局参数，表示选择的分屏个数
 
+  g_GlobalChart[gridViewPointer.pageID] = [];
   // console.log(gridViewPointer.screenSelect)
 
   var FourSplitScreenSelector = gridViewPointer.FourSplitScreen
@@ -185,11 +186,13 @@ function initializeChart(gridViewPointer,chartID) {
   // chart.turboThreshold = 40000;
   // chart.setSize(curChartModelSelector.width(), curChartModelSelector.height() - toolbarHeight, false);
   // curChartModelSelector.hide();
-
-  var updateTime = 1000;
+  
   var callbackDataForSet = [];
   var callbakcDataForAdd = [];
   setChartData(gridViewPointer,curChartModelSelector, chart, chartID, callbackDataForSet, callbakcDataForAdd);
+
+  g_GlobalChart[pageID][chartID] = new g_chartDataStruct();
+  setChartDataGlobal(gridViewPointer.pageID, chartID, g_GlobalChart[pageID][chartID] ) 
 }
 
 function setChartDataGlobal(pageID, chartID, curChart) 

@@ -4,23 +4,23 @@ function ChartDataStruct(){
   this.callbakcDataForAdd = [];
 }
 
-window.g_chartDataStruct = new ChartDataStruct();
+window.g_chartDataStruct = ChartDataStruct;
 window.g_GlobalChart = []; // 每次建立图表时，便可记录
 window.g_ChartConfig = {
 	addDataNumbLimit: 5,
 	updateFrequency: 100
 }
 
-function RefreshChart (updateFrequency) 
+function RefreshChart () 
 {
   setInterval(function() {
-	for (pageID in GlobalChart) 
+	for (pageID in g_GlobalChart) 
 	{
 	  if (true === window.displayItem[pageID]) 
 		{
-			for (charID in GlobalChart[pageID] ) 
+			for (charID in g_GlobalChart[pageID] ) 
 			{
-				var curChart = GlobalChart[pageID][charID];
+				var curChart = g_GlobalChart[pageID][charID];
 				if (true === curChart.isNewDataCome) 
 				{
 					curChart.isNewDataCome = false;      
