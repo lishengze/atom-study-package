@@ -1,0 +1,9 @@
+{
+  "name": "helloworld",
+  "main": "./lib/helloworld",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "keywords": [
+  ],
+  "license": "MIT"
+}
